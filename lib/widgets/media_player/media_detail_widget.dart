@@ -14,15 +14,14 @@ const imageUrl = 'http://debelo.org/debelo_mvc/Content/images/category/debeloMai
 enum PlayerState { stopped, playing, paused }
 
 class MediaDetailWidget extends StatefulWidget {
-  
   final String url;
   final bool local;
 
-  MediaDetailWidget(this.url, {this.local : false});
+  MediaDetailWidget(this.url, {this.local: false});
   @override
   _MediaDetailWidgetState createState() => new _MediaDetailWidgetState(url, local);
 }
-
+/// TODO use data coming from HomePage, i.e `_url`
 class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   String _url;
   bool _local;
@@ -164,46 +163,47 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     );
   }
 
-  Widget _buildPlayer() => new Container(
-      padding: new EdgeInsets.all(16.0),
-      child: new Column(mainAxisSize: MainAxisSize.min, children: [
-        new Container(
-          constraints: BoxConstraints.expand(height: 200),
-          child: Image.network(imageUrl),
-        ),
-        Text(localFilePath),
-        new Row(mainAxisSize: MainAxisSize.min, children: [
-          new IconButton(
-              onPressed: isPlaying ? null : () => play(),
-              iconSize: 64.0,
-              icon: new Icon(Icons.play_arrow),
-              color: Colors.cyan),
-          new IconButton(
-              onPressed: isPlaying ? () => pause() : null,
-              iconSize: 64.0,
-              icon: new Icon(Icons.pause),
-              color: Colors.cyan),
-          new IconButton(
-              onPressed: isPlaying || isPaused ? () => stop() : null,
-              iconSize: 64.0,
-              icon: new Icon(Icons.stop),
-              color: Colors.cyan),
-        ]),
-        duration == null
-            ? new Container()
-            : new Column(children: <Widget>[
-                Slider(
-                  value: position?.inMilliseconds?.toDouble() ?? 0.0,
-                  onChanged: (double value) =>
-                      audioPlayer.seek(Duration(milliseconds: value.toInt())),
-                  min: 0.0,
-                  max: duration.inMilliseconds.toDouble(),
-                ),
-                new Text(
-                    position != null
-                        ? "${positionText ?? ''} / ${durationText ?? ''}"
-                        : duration != null ? durationText : '',
-                    style: new TextStyle(fontSize: 24.0))
-              ])
-      ]));
+  Widget _buildPlayer() => new SingleChildScrollView(
+      child: Container(
+          padding: new EdgeInsets.all(16.0),
+          child: new Column(mainAxisSize: MainAxisSize.min, children: [
+            new Container(
+              constraints: BoxConstraints.expand(height: 200),
+              child: Image.network(imageUrl),
+            ),
+            Text(localFilePath ?? ''),
+            new Row(mainAxisSize: MainAxisSize.min, children: [
+              new IconButton(
+                  onPressed: isPlaying ? null : () => play(),
+                  iconSize: 64.0,
+                  icon: new Icon(Icons.play_arrow),
+                  color: Colors.cyan),
+              new IconButton(
+                  onPressed: isPlaying ? () => pause() : null,
+                  iconSize: 64.0,
+                  icon: new Icon(Icons.pause),
+                  color: Colors.cyan),
+              new IconButton(
+                  onPressed: isPlaying || isPaused ? () => stop() : null,
+                  iconSize: 64.0,
+                  icon: new Icon(Icons.stop),
+                  color: Colors.cyan),
+            ]),
+            duration == null
+                ? new Container()
+                : new Column(children: <Widget>[
+                    Slider(
+                      value: position?.inMilliseconds?.toDouble() ?? 0.0,
+                      onChanged: (double value) => audioPlayer
+                          .seek(Duration(milliseconds: value.toInt())),
+                      min: 0.0,
+                      max: duration.inMilliseconds.toDouble(),
+                    ),
+                    new Text(
+                        position != null
+                            ? "${positionText ?? ''} / ${durationText ?? ''}"
+                            : duration != null ? durationText : '',
+                        style: new TextStyle(fontSize: 24.0))
+                  ])
+          ])));
 }

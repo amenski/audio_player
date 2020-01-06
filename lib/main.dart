@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_audio_palyer/widgets/media_player/media_detail_widget.dart';
 import 'util/constants.dart';
-import 'widgets/media_player/media_detail_widget.dart';
 import 'home/home.dart';
 
 void main() => runApp(MyApp());
@@ -9,7 +9,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      theme: ThemeData.dark(),
       onGenerateRoute: _routes(),
       home: new Scaffold(
         appBar: new AppBar(
@@ -28,9 +27,9 @@ class MyApp extends StatelessWidget {
         case Constants.HomePage:
           screen = HomePage();
           break;
-        // case Constants.MediaDetailPage:
-        //   screen = MediaDetailWidget(arguments['data']);
-        //   break;
+        case Constants.MediaDetailPage:
+          screen = MediaDetailWidget(arguments['id']);
+          break;
         default:
           return null;
       }
