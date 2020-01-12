@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter_audio_palyer/model/post.dart';
 
 import '../../util/util.dart';
 
@@ -14,17 +15,16 @@ const imageUrl = 'http://debelo.org/debelo_mvc/Content/images/category/debeloMai
 enum PlayerState { stopped, playing, paused }
 
 class MediaDetailWidget extends StatefulWidget {
-  final String url;
-  final bool local;
+  final Post post;
 
-  MediaDetailWidget(this.url, {this.local: false});
+  MediaDetailWidget(this.post); // will mainly be instantiated from the route logic
+
   @override
-  _MediaDetailWidgetState createState() => new _MediaDetailWidgetState(url, local);
+  _MediaDetailWidgetState createState() => new _MediaDetailWidgetState(post);
 }
 /// TODO use data coming from HomePage, i.e `_url`
 class _MediaDetailWidgetState extends State<MediaDetailWidget> {
-  String _url;
-  bool _local;
+  Post _post;
 
   Duration duration;
   Duration position;
@@ -48,7 +48,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   Util util = Util();
 
-  _MediaDetailWidgetState(this._url, this._local);
+  _MediaDetailWidgetState(this._post);
 
   @override
   void initState() {
@@ -94,11 +94,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     if (position == duration) {
       position = new Duration(seconds: 0);
     }
-    if (localFilePath != null) {
-      await audioPlayer.play(localFilePath, isLocal: true);
-    } else {
-      await audioPlayer.play(kUrl);
-    }
+    await audioPlayer.play(_post.getUrl, isLocal: _post.isDownloaded);
     setState(() {
       playerState = PlayerState.playing;
     });

@@ -9,9 +9,9 @@ class ImageBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints.expand(height: height /*width will be full*/),
-      decoration: BoxDecoration(color: Colors.green), //BoxDecoration: show something default in-case data did not arrive
-      child: Image.network(url, fit: BoxFit.cover),
+        constraints: BoxConstraints.expand(height: height,),
+        decoration: BoxDecoration(color: Colors.green), //BoxDecoration: show something default in-case data did not arrive
+        child: Image.network(url, fit: BoxFit.cover),
     );
   }
 }
