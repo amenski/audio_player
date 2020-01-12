@@ -5,12 +5,9 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_audio_palyer/model/post.dart';
+import 'package:flutter_audio_palyer/util/constants.dart';
 
 import '../../util/util.dart';
-
-const kUrl = "http://debelo.org/debelo_mvc/Audio/Mezemure%20dawit/00.mp3";
-const kUrl2 = "http://debelo.org/debelo_mvc/Audio/_LitonZesebatuEletat/ZeselusSimikeHiyaw.mp3";
-const imageUrl = 'http://debelo.org/debelo_mvc/Content/images/category/debeloMain.jpg';
 
 enum PlayerState { stopped, playing, paused }
 
@@ -119,7 +116,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   Future _loadFile() async {
     print("downloading file...");
-    File file = await util.downloadFromUrl(kUrl);
+    File file = await util.downloadFromUrl(this._post.getThumbnailUrl);
     if (await file.exists())
       setState(() {
         localFilePath = file.path;
@@ -151,7 +148,9 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  new Material(child: _buildPlayer()),
+                  Text(this._post.getTitle),
+                  Text(this._post.getDescription),
+                  new Material(child: _buildPlayer(this._post.getThumbnailUrl)),
                 ]),
           ),
         ),
@@ -159,13 +158,13 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     );
   }
 
-  Widget _buildPlayer() => new SingleChildScrollView(
+  Widget _buildPlayer(String url) => new SingleChildScrollView(
       child: Container(
           padding: new EdgeInsets.all(16.0),
           child: new Column(mainAxisSize: MainAxisSize.min, children: [
             new Container(
               constraints: BoxConstraints.expand(height: 200),
-              child: Image.network(imageUrl),
+              child: Image.network(url),
             ),
             Text(localFilePath ?? ''),
             new Row(mainAxisSize: MainAxisSize.min, children: [

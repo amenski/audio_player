@@ -1,10 +1,13 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
 
 typedef OnError = void Function(Exception exception);
+
+typedef OnCardTap = void Function(BuildContext context, int id);
 
 class Util {
   /// Load a file from `url`
