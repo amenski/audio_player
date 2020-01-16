@@ -5,7 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_audio_palyer/model/post.dart';
-import 'package:flutter_audio_palyer/util/constants.dart';
+import 'package:flutter_audio_palyer/util/file_handler.dart';
 
 import '../../util/util.dart';
 
@@ -19,7 +19,7 @@ class MediaDetailWidget extends StatefulWidget {
   @override
   _MediaDetailWidgetState createState() => new _MediaDetailWidgetState(post);
 }
-/// TODO use data coming from HomePage, i.e `_url`
+
 class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   Post _post;
 
@@ -44,6 +44,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   StreamSubscription _audioPlayerStateSubscription;
 
   Util util = Util();
+  FileHandler fileHandler = FileHandler();
 
   _MediaDetailWidgetState(this._post);
 
@@ -116,7 +117,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   Future _loadFile() async {
     print("downloading file...");
-    File file = await util.downloadFromUrl(this._post.getThumbnailUrl);
+    File file = await fileHandler.getImageFromNetwork(this._post.getThumbnailUrl);
     if (await file.exists())
       setState(() {
         localFilePath = file.path;
@@ -127,7 +128,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Player"),
+        title: Text(this._post.getTitle),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.file_download),
