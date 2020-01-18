@@ -15,7 +15,7 @@ dependencies:
   path_provider:
   http:
   audioplayers:
-  simple_permissions:
+  permission_handler:
 
 dev_dependencies:
   flutter_test:

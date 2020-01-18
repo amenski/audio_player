@@ -1,27 +1,50 @@
+import 'dart:ffi';
 import 'dart:io' as io;
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter_audio_palyer/util/permission_service.dart';
 import 'package:flutter_audio_palyer/util/util.dart';
-import 'package:http/http.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:simple_permissions/simple_permissions.dart';
+
+/// This recipe uses the following steps:
+    /// 1. Find the correct local path.
+    /// 2. Create a reference to the file location.
+    /// 3. Write data to the file.
+    /// 4. Read data from the file.
 
 class FileHandler {
   Util util = Util();
 
- 
-Future<io.File> _writeFileToDisk(io.File file) async {
-  try {
-    var dir = await getExternalStorageDirectory();
-    var appdir = await new io.Directory('${dir.path}/audio_player').create(recursive: true);
-    if(appdir != null){
-      //TODO add implementation
-    }
+Future<String> _localPath() async {
+  var dir;
+  bool permission = await PermissionService().getPermissionWriteExternal;
+  if(permission) {
+   dir = await getExternalStorageDirectory();
+   await new io.Directory('${dir.path}/audio_player')
+                  .create(recursive: true)
+                  .then((d) => dir = d)
+                  .catchError(print);
+  } else {
+    dir = await getApplicationDocumentsDirectory();
+  }
+  
+  return dir.path;
+}
 
+/// Accepts bytes (Uint8List = byte list) and saves to file
+Future<io.File> writeFileToDisk(Uint8List bytes) async {
+  File file;
+  try {
+    var dir = await _localPath();
+    if(dir != null){
+      file = new io.File('$dir/audio.mp3');
+    }
   } catch (e) {
     print(e);
-    return null;
   }
+  
+  return file;
 }
 
 

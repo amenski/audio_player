@@ -3,7 +3,7 @@
 class Constants {
   static const APP_TITLE = 'Media app';
 
-  static const String DEFAULT_LEADING_IMAGE = "https://thumbs.worthpoint.com/zoom/images2/1/0713/14/ethiopian-tewahedo-orthodox-christian_1_a2c0192e16c896231694b5775bfd8513.jpg"; //TODO change it to asset
+  static const String DEFAULT_LEADING_IMAGE = "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg"; //TODO change it to asset
 
 
    /// Routes in our app
