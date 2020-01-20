@@ -21,14 +21,13 @@ Future<String> _localPath() async {
   bool permission = await PermissionService().getPermissionWriteExternal;
   if(permission) {
    dir = await getExternalStorageDirectory();
-   await new io.Directory('${dir.path}/audio_player')
+   await new io.Directory('${dir.path}/media')
                   .create(recursive: true)
                   .then((d) => dir = d)
                   .catchError(print);
   } else {
     dir = await getApplicationDocumentsDirectory();
   }
-  
   return dir.path;
 }
 
@@ -39,6 +38,7 @@ Future<io.File> writeFileToDisk(Uint8List bytes) async {
     var dir = await _localPath();
     if(dir != null){
       file = new io.File('$dir/audio.mp3');
+      file.writeAsBytes(bytes);
     }
   } catch (e) {
     print(e);

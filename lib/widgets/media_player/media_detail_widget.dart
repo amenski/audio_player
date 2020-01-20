@@ -120,14 +120,15 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     setState(() => playerState = PlayerState.stopped);
   }
 
-  Future _checkPermissionAndDownload() async {
+  Future _downloadMediaFile() async {
     print("downloading file...");
     Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.getThumbnailUrl);
     File file = await fileHandler.writeFileToDisk(bytesList);
-    if (file != null && await file.exists())
+    if (file != null && await file.exists()) {
       setState(() {
         localFilePath = file.path;
       });
+    }
   }
 
   @override
@@ -138,7 +139,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.file_download),
-            onPressed: () => _checkPermissionAndDownload(),
+            onPressed: () => _downloadMediaFile(),
           ),
           IconButton(
             icon: Icon(Icons.share),
