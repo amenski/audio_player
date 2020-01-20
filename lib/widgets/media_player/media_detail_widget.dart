@@ -97,7 +97,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     if (position == duration) {
       position = new Duration(seconds: 0);
     }
-    await audioPlayer.play(_post.getUrl, isLocal: _post.isDownloaded);
+    await audioPlayer.play(_post.url, isLocal: _post.isDownloaded);
     setState(() {
       playerState = PlayerState.playing;
     });
@@ -121,13 +121,17 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   }
 
   Future _downloadMediaFile() async {
-    print("downloading file...");
-    Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.getThumbnailUrl);
-    File file = await fileHandler.writeFileToDisk(bytesList);
-    if (file != null && await file.exists()) {
-      setState(() {
-        localFilePath = file.path;
-      });
+    print("downloading file from ..." + this._post.url);
+    if(!this._post.isDownloaded) {
+      Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
+      File file = await fileHandler.writeFileToDisk(bytesList, name: this._post.title); //TODO generate proper name
+      if (file != null && await file.exists()) {
+        setState(() {
+          localFilePath = file.path;
+          this._post.url = localFilePath;
+          this._post.isDownloaded = true;
+        });
+      }
     }
   }
 
@@ -135,7 +139,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(this._post.getTitle),
+        title: Text(this._post.title),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.file_download),
@@ -156,9 +160,9 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(this._post.getTitle),
-                  Text(this._post.getDescription),
-                  new Material(child: _buildPlayer(this._post.getThumbnailUrl)),
+                  Text(this._post.title),
+                  Text(this._post.description),
+                  new Material(child: _buildPlayer(this._post.thumbnailUrl)),
                 ]),
           ),
         ),

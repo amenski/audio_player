@@ -1,4 +1,3 @@
-import 'dart:ffi';
 import 'dart:io' as io;
 import 'dart:io';
 import 'dart:typed_data';
@@ -32,13 +31,13 @@ Future<String> _localPath() async {
 }
 
 /// Accepts bytes (Uint8List = byte list) and saves to file
-Future<io.File> writeFileToDisk(Uint8List bytes) async {
+Future<io.File> writeFileToDisk(Uint8List bytes, {String name = 'audio'}) async {
   File file;
   try {
     var dir = await _localPath();
     if(dir != null){
-      file = new io.File('$dir/audio.mp3');
-      file.writeAsBytes(bytes);
+      file = new io.File('$dir/$name.mp3');
+      file.writeAsBytes(bytes, flush: true);
     }
   } catch (e) {
     print(e);
@@ -46,8 +45,6 @@ Future<io.File> writeFileToDisk(Uint8List bytes) async {
   
   return file;
 }
-
-
 
 /// 
 static final _instance = FileHandler._internal();

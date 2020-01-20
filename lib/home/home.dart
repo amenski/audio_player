@@ -34,11 +34,11 @@ class HomePage extends StatelessWidget {
         child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: <Widget>[
-            ImageBanner(url: itemsList[index].getThumbnailUrl),
+            ImageBanner(url: itemsList[index].thumbnailUrl),
             Container(
               padding: EdgeInsets.symmetric(vertical: 5.0),
               decoration: BoxDecoration(color: Colors.black45.withOpacity(0.7)),
-              child: CardTile(itemsList[index].getTitle, itemsList[index].getDescription)
+              child: CardTile(itemsList[index].title, itemsList[index].description)
             ),
           ],
         ),
@@ -54,7 +54,7 @@ class HomePage extends StatelessWidget {
 
   // validate if category has a post, or dont display category detail page
   _validateCategory(Category category, BuildContext context) {
-    bool valid = (category.getPosts != null || category.getPosts.isEmpty);
+    bool valid = (category.posts != null || category.posts.isEmpty);
     if(!valid) {
       final snackBar = SnackBar(content: Text("Not data found."));
       Scaffold.of(context).showSnackBar(snackBar);

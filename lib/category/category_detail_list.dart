@@ -9,10 +9,10 @@ class CategoryDetailList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(category.getTitle),),
+      appBar: AppBar(title: Text(category.title),),
       body: Container(
       child: ListView.builder(
-        itemCount: category.getPosts.length,
+        itemCount: category.posts.length,
         itemBuilder: (context, index) => _buildBody(context, index),
       ),
     ),
@@ -23,9 +23,9 @@ class CategoryDetailList extends StatelessWidget {
     return GestureDetector(
       onTap: () => _navigateToDetail(context, index),
       child: ListTile(
-        title: Text(category.getPosts[index].getTitle),
+        title: Text(category.posts[index].title),
         subtitle: Text(
-          category.getPosts[index].getDescription,
+          category.posts[index].description,
           overflow: TextOverflow.ellipsis,
           ),
       ),
@@ -33,6 +33,6 @@ class CategoryDetailList extends StatelessWidget {
   }
 
     _navigateToDetail(BuildContext context, int id) {
-    Navigator.pushNamed(context, Constants.MediaDetailPage, arguments: {'data': category.getPosts[id]});
+    Navigator.pushNamed(context, Constants.MediaDetailPage, arguments: {'data': category.posts[id]});
   }
 }

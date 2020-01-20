@@ -52,35 +52,27 @@ class MyApp extends StatelessWidget {
       1,
       "መቅድም",
       "http://debelo.org/debelo_mvc/Audio/HaymanoteAbew/Mekdim.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "መቅድም",
-      false,
+      description: "መቅድም",
     );
     
     var haymanoteAbew2 = Post(
       2,
       "መግለጫ",
       "http://debelo.org/debelo_mvc/Audio/HaymanoteAbew/Mekdim.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "መግለጫ",
-      false,
+      description: "መግለጫ",
     );
     var haymanoteAbew3 = Post(
       3,
       "ታሪክ",
       "http://debelo.org/debelo_mvc/Audio/HaymanoteAbew/Tarik.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "ታሪክ",
-      false,
+      description: "ታሪክ",
     );
 
     var haymanoteAbew4 = Post(
       3,
       "ምዕራፍ ፩",
       "http://debelo.org/debelo_mvc/Audio/HaymanoteAbew/Tarik.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "ምዕራፍ ፩",
-      false,
+      description: "ምዕራፍ ፩",
     );
 
     //
@@ -88,41 +80,31 @@ class MyApp extends StatelessWidget {
       1,
       " መግቢያ ፩",
       "http://debelo.org/debelo_mvc/Files/books/meshafemenecosat/Filksyos/-1.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "መጽሀፈ መነኮሳት ፊልክስዮስ በድምጽ መግቢያ ፩",
-      false,
+      description: "መጽሀፈ መነኮሳት ፊልክስዮስ በድምጽ መግቢያ ፩",
     );
     var menekosat1 = Post(
       2,
       "መግቢያ ፪",
       "http://debelo.org/debelo_mvc/Files/books/meshafemenecosat/Filksyos/-2.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "መጽሀፈ መነኮሳት ፊልክስዮስ በድምጽ መግቢያ ፪",
-      false,
+      description: "መጽሀፈ መነኮሳት ፊልክስዮስ በድምጽ መግቢያ ፪",
     );
     var menekosat2 = Post(
       3,
       "ክፍል 1",
       "http://debelo.org/debelo_mvc/Files/books/meshafemenecosat/Filksyos/1.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "መጽሀፈ መነኮሳት ፊልክስዮስ ክፍል 1",
-      false,
+      description: "መጽሀፈ መነኮሳት ፊልክስዮስ ክፍል 1",
     );
     var menekosat3 = Post(
       4,
       "ክፍል 2",
       "http://debelo.org/debelo_mvc/Files/books/meshafemenecosat/Filksyos/2.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "መጽሀፈ መነኮሳት ፊልክስዮስ ክፍል 2",
-      false,
+      description: "መጽሀፈ መነኮሳት ፊልክስዮስ ክፍል 2",
     );
     var menekosat4 = Post(
       4,
       "ክፍል 3",
       "http://debelo.org/debelo_mvc/Files/books/meshafemenecosat/Filksyos/3.mp3",
-      "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg",
-      "መጽሀፈ መነኮሳት ፊልክስዮስ ክፍል 3",
-      false,
+      description: "መጽሀፈ መነኮሳት ፊልክስዮስ ክፍል 3",
     );
 
     var categoryWithPosts = Category("ሃይማኖተ አበው", "", posts: [haymanoteAbew1, haymanoteAbew2, haymanoteAbew3, haymanoteAbew4]);

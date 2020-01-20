@@ -19,7 +19,7 @@ class CategoryDetail extends StatelessWidget {
     }
     
     return Scaffold(
-      appBar: AppBar(title: Text(category.getTitle)),
+      appBar: AppBar(title: Text(category.title)),
       body: Container(
         child: GridView.builder(
           itemCount: _getItemLength(category), 
@@ -39,7 +39,7 @@ class CategoryDetail extends StatelessWidget {
         child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: <Widget>[
-            ImageBanner(url: category.getThumbnailUrl),
+            ImageBanner(url: category.thumbnailUrl),
             Container(
               padding: EdgeInsets.symmetric(vertical: 5.0),
               decoration: BoxDecoration(color: Colors.black45.withOpacity(0.7)),
@@ -52,26 +52,26 @@ class CategoryDetail extends StatelessWidget {
   }
 
   _onCardTap(BuildContext context, int id) {
-    if(category.getCategories[id].getPosts == null){
+    if(category.categories[id].posts == null){
       // notification here
       return;
     }
-    Navigator.pushNamed(context, Constants.CategoryDetailListPage, arguments: {'data': category.getCategories[id]});
+    Navigator.pushNamed(context, Constants.CategoryDetailListPage, arguments: {'data': category.categories[id]});
   }
 
   // only category or posts are available in any moment
   int _getItemLength(Category category ) {
-    if(category.getCategories != null){
-      return category.getCategories.length;
+    if(category.categories != null){
+      return category.categories.length;
     }
-    return category.getPosts.length;
+    return category.posts.length;
   }
 
   Widget _buildCardTile(BuildContext context, int idx) {
-    if(category.getCategories != null){
-      return CardTile(category.getCategories[idx].getTitle, category.getCategories[idx].getDescription);
+    if(category.categories != null){
+      return CardTile(category.categories[idx].title, category.categories[idx].description);
     }
     
-    return CardTile(category.getPosts[idx].getTitle, category.getPosts[idx].getDescription);
+    return CardTile(category.posts[idx].title, category.posts[idx].description);
   }
 }

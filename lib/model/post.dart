@@ -1,29 +1,24 @@
+/// A field is equivalent to a getter/setter pair. 
+/// A final field is equivalent to a getter.
+/// You change it only to actual getters/setters if additionally logic is required (e.g. validation)
 class Post {
-  int _id;
-  int _categoryId;
-  String _title;
-  String _url;
-  String _thumbnailUrl;
-  String _description;
-  bool _downloaded;
+  int id;
+  int categoryId;
+  String title;
+  String url;
+  String thumbnailUrl;
+  String description;
+  bool isDownloaded = false;
 
   Post(
-    this._id, 
-    this._title, 
-    this._url, 
-    this._thumbnailUrl, 
-    this._description,
-    this._downloaded);
+    this.id, 
+    this.title, 
+    this.url, 
+    {
+      this.thumbnailUrl = "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg", 
+      this.description,
+      this.isDownloaded = false
+    }
+    );
 
-  int get getId => _id;
-
-  String get getTitle => _title;
-
-  String get getUrl => _url;
-
-  String get getThumbnailUrl => _thumbnailUrl;
-
-  String get getDescription => _description;
-
-  bool get isDownloaded => _downloaded;
 }
