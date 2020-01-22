@@ -9,7 +9,6 @@ import 'package:flutter_audio_palyer/model/post.dart';
 import 'package:flutter_audio_palyer/util/file_handler.dart';
 import 'package:flutter_audio_palyer/util/network_operations.dart';
 import 'package:flutter_audio_palyer/util/permission_service.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 import '../../util/util.dart';
 
@@ -123,13 +122,15 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   Future _downloadMediaFile() async {
     print("downloading file from ..." + this._post.url);
-    if(!this._post.isDownloaded) {
+    bool permissionGranted = await PermissionService().getPermissionWriteExternal;
+    if(/*!this._post.isDownloaded &&*/ permissionGranted) {
       Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
-      File file = await fileHandler.writeFileToDisk(bytesList, name: this._post.title); //TODO generate proper name
+      File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFIleName([this._post.description, this._post.title])); 
+      print(file.path + '---------------------------');
       if (file != null && await file.exists()) {
         setState(() {
           localFilePath = file.path;
-          this._post.url = localFilePath;
+          //this._post.url = localFilePath;
           this._post.isDownloaded = true;
         });
       }

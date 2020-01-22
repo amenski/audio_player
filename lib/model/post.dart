@@ -8,6 +8,7 @@ class Post {
   String url;
   String thumbnailUrl;
   String description;
+  String downloadPath;
   bool isDownloaded = false;
 
   Post(
@@ -17,6 +18,7 @@ class Post {
     {
       this.thumbnailUrl = "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg", 
       this.description,
+      this.downloadPath = '',
       this.isDownloaded = false
     }
     );
