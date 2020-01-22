@@ -1,17 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.flutter_audio_palyer">
-    <!-- io.flutter.app.FlutterApplication is an android.app.Application that
-         calls FlutterMain.startInitialization(this); in its onCreate method.
-         In most cases you can leave this as-is, but you if you want to provide
-         additional functionality it is fine to subclass or reimplement
-         FlutterApplication and put your custom class here. -->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     
+    <!-- 
+        android:usesCleartextTraffic="true" : 
+        Indicates whether the app intends to use cleartext network traffic, such as cleartext HTTP. 
+        The default value for apps that target API level 27 or lower is "true". Apps that target API level 28 or higher default to "false". 
+        https://developer.android.com/guide/topics/manifest/application-element#usesCleartextTraffic  -->
     <application
         android:name="io.flutter.app.FlutterApplication"
         android:label="flutter_audio_palyer"
+        android:usesCleartextTraffic="true" 
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

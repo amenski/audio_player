@@ -94,6 +94,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   /// Play from local_file if already downloaded or else from url provided
   Future play() async {
+    //seek back to start
     if (position == duration) {
       position = new Duration(seconds: 0);
     }
