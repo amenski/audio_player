@@ -3,8 +3,8 @@
 class Constants {
   static const APP_TITLE = 'Media app';
 
-  static const String DEFAULT_LEADING_IMAGE = "https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg"; //TODO change it to asset
-
+  static const String DEFAULT_LEADING_IMAGE = 'https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg'; //TODO change it to asset
+  static const String STORAGE_PERMISSION_DENIED_ERROR = 'Can not download, storage permission denied';
 
    /// Routes in our app
   static const HomePage = '/';

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:audiobook/widgets/notification/snack_builder.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -9,6 +10,7 @@ import 'package:audiobook/model/post.dart';
 import 'package:audiobook/util/file_handler.dart';
 import 'package:audiobook/util/network_operations.dart';
 import 'package:audiobook/util/permission_service.dart';
+import 'package:audiobook/util/constants.dart';
 
 import '../../util/util.dart';
 
@@ -132,6 +134,9 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
           this._post.isDownloaded = true;
         });
       }
+    } else {
+      final snackBar = SnackBar(content: Text('mm'));
+      Scaffold.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -141,10 +146,15 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       appBar: AppBar(
         title: Text(this._post.title),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.file_download),
-            onPressed: () => _downloadMediaFile(),
-          ),
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                  icon: Icon(Icons.file_download),
+                  onPressed: () => _downloadMediaFile(),
+                );
+              },
+            ),
+          
           IconButton(
             icon: Icon(Icons.share),
             onPressed: () => print("On share."),
