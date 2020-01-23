@@ -5,10 +5,10 @@ import 'dart:typed_data';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_audio_palyer/model/post.dart';
-import 'package:flutter_audio_palyer/util/file_handler.dart';
-import 'package:flutter_audio_palyer/util/network_operations.dart';
-import 'package:flutter_audio_palyer/util/permission_service.dart';
+import 'package:audiobook/model/post.dart';
+import 'package:audiobook/util/file_handler.dart';
+import 'package:audiobook/util/network_operations.dart';
+import 'package:audiobook/util/permission_service.dart';
 
 import '../../util/util.dart';
 

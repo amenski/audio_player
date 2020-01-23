@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_audio_palyer/util/constants.dart';
+import 'package:audiobook/util/constants.dart';
 
 class CategoryDetailList extends StatelessWidget {
   var category;

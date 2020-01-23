@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_audio_palyer/model/category.dart';
-import 'package:flutter_audio_palyer/util/constants.dart';
-import 'package:flutter_audio_palyer/widgets/card/card_tile.dart';
-import 'package:flutter_audio_palyer/widgets/image_banner/image_banner.dart';
+import 'package:audiobook/model/category.dart';
+import 'package:audiobook/util/constants.dart';
+import 'package:audiobook/widgets/card/card_tile.dart';
+import 'package:audiobook/widgets/image_banner/image_banner.dart';
 
 /// Displays `GridView` of available `Category` or `Post`
 class CategoryDetail extends StatelessWidget {
