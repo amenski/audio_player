@@ -6,21 +6,28 @@ typedef OnCardTap = void Function(BuildContext context, int id);
 
 class Util {
  
-  // remove space char as much as possible
-  generateMediaFIleName(var input) {
-    String source = input[0] ?? input[1];
-    return replace(' ', source, '');
+  generateMediaFileName(var input) {
+    StringBuffer stringBuffer = new StringBuffer();
+    String source = _getInputString(input);
+    
+    for(int i=0; i < source.length; i++) {
+      if(source[i] != null && source[i] != ' ')
+        stringBuffer.write(source[i]);
+    }
+
+    return stringBuffer.toString();
   }
 
-  String replace(final String text, final String searchText, final String replacement) {
-    String output;
-      for (int i = 0; i < searchText.length; i++) {
-        int start = searchText.indexOf(text);
-        output = searchText.replaceRange(start, text.length, replacement);
-      }
+  _getInputString(List<String> input) {
+    for(int i = 0; i < input.length; i ++){
+     if(input[i] != null && input[i].trim().isNotEmpty) {
+        return input[i];
+     }
+    }
 
-      return output;
+    return null;
   }
+
   /// Util instantiation
   static Util _instance = Util._internal();
   factory Util() => _instance;

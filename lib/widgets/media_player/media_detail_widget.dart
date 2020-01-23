@@ -121,16 +121,14 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   }
 
   Future _downloadMediaFile() async {
-    print("downloading file from ..." + this._post.url);
     bool permissionGranted = await PermissionService().getPermissionWriteExternal;
-    if(/*!this._post.isDownloaded &&*/ permissionGranted) {
+    if(!this._post.isDownloaded && permissionGranted) {
       Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
-      File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFIleName([this._post.description, this._post.title])); 
-      print(file.path + '---------------------------');
+      File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFileName([this._post.description, this._post.title])); 
       if (file != null && await file.exists()) {
         setState(() {
           localFilePath = file.path;
-          //this._post.url = localFilePath;
+          this._post.url = localFilePath;
           this._post.isDownloaded = true;
         });
       }
