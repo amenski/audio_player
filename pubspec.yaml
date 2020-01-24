@@ -1,6 +1,6 @@
-name: flutter_audio_palyer
-description: A new Flutter project.
-version: 1.0.0+1
+name: audiobook
+description: A project that provides some useful audio book links
+version: 1.0.0
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -16,6 +16,7 @@ dependencies:
   http:
   audioplayers:
   permission_handler:
+  flutter_launcher_icons:
 
 dev_dependencies:
   flutter_test:
@@ -23,3 +24,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  
+  # Assets
+  assets:
+    - assets/icons/

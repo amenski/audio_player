@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_audio_palyer/category/category_detail.dart';
-import 'package:flutter_audio_palyer/category/category_detail_list.dart';
-import 'package:flutter_audio_palyer/model/category.dart';
-import 'package:flutter_audio_palyer/widgets/media_player/media_detail_widget.dart';
+import 'package:audiobook/category/category_detail.dart';
+import 'package:audiobook/category/category_detail_list.dart';
+import 'package:audiobook/model/category.dart';
+import 'package:audiobook/widgets/media_player/media_detail_widget.dart';
 import 'model/post.dart';
 import 'util/constants.dart';
 import 'home/home.dart';

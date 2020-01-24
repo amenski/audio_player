@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:audiobook/util/constants.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter_audio_palyer/model/post.dart';
-import 'package:flutter_audio_palyer/util/file_handler.dart';
-import 'package:flutter_audio_palyer/util/network_operations.dart';
-import 'package:flutter_audio_palyer/util/permission_service.dart';
+import 'package:audiobook/model/post.dart';
+import 'package:audiobook/util/file_handler.dart';
+import 'package:audiobook/util/network_operations.dart';
+import 'package:audiobook/util/permission_service.dart';
 
 import '../../util/util.dart';
 
@@ -120,7 +121,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     setState(() => playerState = PlayerState.stopped);
   }
 
-  Future _downloadMediaFile() async {
+  Future _downloadMediaFile(GlobalKey<ScaffoldState> state) async {
     bool permissionGranted = await PermissionService().getPermissionWriteExternal;
     if(!this._post.isDownloaded && permissionGranted) {
       Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
@@ -132,19 +133,34 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
           this._post.isDownloaded = true;
         });
       }
+    } else {
+      Widget message  = Text(Constants.STORAGE_PERMISSION_DENIED_ERROR);
+      if(this._post.isDownloaded){ message = Text(Constants.MEDIA_ALREADY_DOWNLOADED); localFilePath = this._post.url;}
+
+      final snackBar = SnackBar(content: message);
+      state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
     }
+
   }
 
   @override
   Widget build(BuildContext context) {
+     final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text(this._post.title),
         actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.file_download),
-            onPressed: () => _downloadMediaFile(),
-          ),
+          Builder(
+            builder: (BuildContext context) {
+              return IconButton(
+                  icon: Icon(Icons.file_download),
+                  onPressed: () => _downloadMediaFile(_scaffoldKey),
+                );
+              },
+            ),
+          
           IconButton(
             icon: Icon(Icons.share),
             onPressed: () => print("On share."),

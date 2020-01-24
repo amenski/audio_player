@@ -1,4 +1,4 @@
-package com.example.flutter_audio_palyer
+package it.aman.audiobook;
 
 import androidx.annotation.NonNull;
 import io.flutter.embedding.android.FlutterActivity

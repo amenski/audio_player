@@ -1,20 +1,10 @@
 import 'dart:typed_data';
 
-import 'package:flutter_audio_palyer/util/util.dart';
+import 'package:audiobook/util/util.dart';
 import 'package:http/http.dart';
 
 class NetworkOperations {
-  
-
-  Future<Uint8List> getImageFromNetwork(String url, {  OnError onError}) async {
-    final bytes = await _loadFromUrl(url,
-        onError: (Exception exception) =>
-            print('getImageFromNetwork => exception $exception'));
-
-    return bytes;
-  }
-  
-   Future<Uint8List> getFileFromNetwork(String url, { OnError onError}) async {
+  Future<Uint8List> getFileFromNetwork(String url, { OnError onError}) async {
     final bytes = await _loadFromUrl(url,
         onError: (Exception exception) =>
             print('getFileFromNetwork => exception $exception'));

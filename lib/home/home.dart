@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_audio_palyer/model/category.dart';
-import 'package:flutter_audio_palyer/widgets/card/card_tile.dart';
+import 'package:audiobook/model/category.dart';
+import 'package:audiobook/widgets/card/card_tile.dart';
 import '../util/constants.dart';
 import '../widgets/image_banner/image_banner.dart';
 

@@ -1,6 +1,6 @@
 
-import 'package:flutter_audio_palyer/model/post.dart';
-import 'package:flutter_audio_palyer/util/constants.dart';
+import 'package:audiobook/model/post.dart';
+import 'package:audiobook/util/constants.dart';
 
 class Category {
   int id;

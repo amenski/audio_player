@@ -2,8 +2,8 @@ import 'dart:io' as io;
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:flutter_audio_palyer/util/permission_service.dart';
-import 'package:flutter_audio_palyer/util/util.dart';
+import 'package:audiobook/util/permission_service.dart';
+import 'package:audiobook/util/util.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// This recipe uses the following steps:
