@@ -127,7 +127,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
       File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFileName([this._post.description, this._post.title])); 
       if (file != null && await file.exists()) {
-        setState(() {
+        setState(() { //TODO throws an exception if the activity is closed before the download is complete
           localFilePath = file.path;
           this._post.url = localFilePath;
           this._post.isDownloaded = true;
