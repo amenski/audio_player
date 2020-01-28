@@ -4,7 +4,7 @@ import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/card/card_tile.dart';
 import 'package:audiobook/widgets/image_banner/image_banner.dart';
 
-/// Displays `GridView` of available `Category` or `Post`
+/// Displays `GridView` of available `Category`
 class CategoryDetail extends StatelessWidget {
   final category;
   var _cardsInRow = 2;
@@ -39,7 +39,7 @@ class CategoryDetail extends StatelessWidget {
         child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: <Widget>[
-            ImageBanner(url: category.thumbnailUrl),
+            ImageBanner(url: category.thumbUrl),
             Container(
               padding: EdgeInsets.symmetric(vertical: 5.0),
               decoration: BoxDecoration(color: Colors.black45.withOpacity(0.7)),
@@ -61,10 +61,11 @@ class CategoryDetail extends StatelessWidget {
 
   // only category or posts are available in any moment
   int _getItemLength(Category category ) {
-    if(category.categories != null){
-      return category.categories.length;
-    }
-    return category.posts.length;
+    // if(category.categories != null){
+    //   return category.categories.length;
+    // }
+    // return category.posts.length;
+    return 2;
   }
 
   Widget _buildCardTile(BuildContext context, int idx) {

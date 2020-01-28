@@ -29,3 +29,4 @@ flutter:
   # Assets
   assets:
     - assets/icons/
+    - assets/data/

@@ -178,7 +178,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 children: [
                   Text(this._post.title),
                   Text(this._post.description),
-                  new Material(child: _buildPlayer(this._post.thumbnailUrl)),
+                  new Material(child: _buildPlayer(this._post.thumbUrl)),
                 ]),
           ),
         ),

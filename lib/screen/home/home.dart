@@ -1,15 +1,41 @@
-import 'package:flutter/material.dart';
 import 'package:audiobook/model/category.dart';
+import 'package:audiobook/repository/media_player_repository.dart';
+import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/card/card_tile.dart';
-import '../util/constants.dart';
-import '../widgets/image_banner/image_banner.dart';
+import 'package:audiobook/widgets/image_banner/image_banner.dart';
+import 'package:flutter/material.dart';
 
 /// Landing page that displays all categories available
-class HomePage extends StatelessWidget {
-  final itemsList;
+class HomePage extends StatefulWidget {
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  var itemsList;
   var _cardsInRow = 2;
 
-  HomePage(this.itemsList);
+  _HomePageState();
+
+  @override
+  void initState() {
+    initHomePage();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  // get all parent categories
+  void initHomePage() async {
+    List<Category> categories = await MediaPlayerRepository().findAllParentCategory();
+    setState(() {
+      itemsList = categories;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +60,7 @@ class HomePage extends StatelessWidget {
         child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: <Widget>[
-            ImageBanner(url: itemsList[index].thumbnailUrl),
+            ImageBanner(url: itemsList[index].thumbUrl),
             Container(
               padding: EdgeInsets.symmetric(vertical: 5.0),
               decoration: BoxDecoration(color: Colors.black45.withOpacity(0.7)),
@@ -53,11 +79,11 @@ class HomePage extends StatelessWidget {
   }
 
   // validate if category has a post, or dont display category detail page
-  _validateCategory(Category category, BuildContext context) {
-    bool valid = (category.posts != null || category.posts.isEmpty);
-    if(!valid) {
-      final snackBar = SnackBar(content: Text("Not data found."));
-      Scaffold.of(context).showSnackBar(snackBar);
-    }
-  }
+  // _validateCategory(Category category, BuildContext context) {
+  //   bool valid = (category.posts != null || category.posts.isEmpty);
+  //   if(!valid) {
+  //     final snackBar = SnackBar(content: Text("Not data found."));
+  //     Scaffold.of(context).showSnackBar(snackBar);
+  //   }
+  // }
 }

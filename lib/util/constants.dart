@@ -8,11 +8,14 @@ class Constants {
   static const String STORAGE_PERMISSION_DENIED_ERROR = 'Can not download, storage permission denied';
   static const String MEDIA_ALREADY_DOWNLOADED = 'Already downloaded!.';
 
-   /// Routes in our app
+  static const String DATABASE_FILE_NAME = "database.db";
+  
+  /// Routes in our app
   static const HomePage = '/';
   static const CategoryDetailPage = '/category-detail';
   static const CategoryDetailListPage = '/category-detail-list';
   static const MediaDetailPage = '/media-detail';
+
 
   // Instantiation should not be allowed
   Constants._privateConstructor();
