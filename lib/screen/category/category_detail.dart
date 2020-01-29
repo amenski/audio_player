@@ -1,3 +1,5 @@
+import 'package:audiobook/model/post.dart';
+import 'package:audiobook/repository/media_player_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:audiobook/model/category.dart';
 import 'package:audiobook/util/constants.dart';
@@ -6,10 +8,11 @@ import 'package:audiobook/widgets/image_banner/image_banner.dart';
 
 /// Displays `GridView` of available `Category`
 class CategoryDetail extends StatelessWidget {
-  final category;
+  final Category _category;
+  final List<Category> _children;
   var _cardsInRow = 2;
 
-  CategoryDetail(this.category);
+  CategoryDetail(this._category, this._children);
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +22,11 @@ class CategoryDetail extends StatelessWidget {
     }
     
     return Scaffold(
-      appBar: AppBar(title: Text(category.title)),
+      appBar: AppBar(title: Text(_category.title)),
       body: Container(
         child: GridView.builder(
-          itemCount: _getItemLength(category), 
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: _cardsInRow),
+          itemCount: _children.length, 
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
           itemBuilder: (context, index) => _buildCardStack(context, index),
         ),
       ),
@@ -39,7 +41,7 @@ class CategoryDetail extends StatelessWidget {
         child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: <Widget>[
-            ImageBanner(url: category.thumbUrl),
+            ImageBanner(url: _children[index].thumbUrl),
             Container(
               padding: EdgeInsets.symmetric(vertical: 5.0),
               decoration: BoxDecoration(color: Colors.black45.withOpacity(0.7)),
@@ -51,28 +53,12 @@ class CategoryDetail extends StatelessWidget {
     );
   }
 
-  _onCardTap(BuildContext context, int id) {
-    if(category.categories[id].posts == null){
-      // notification here
-      return;
-    }
-    Navigator.pushNamed(context, Constants.CategoryDetailListPage, arguments: {'data': category.categories[id]});
-  }
-
-  // only category or posts are available in any moment
-  int _getItemLength(Category category ) {
-    // if(category.categories != null){
-    //   return category.categories.length;
-    // }
-    // return category.posts.length;
-    return 2;
+  _onCardTap(BuildContext context, int id) async {
+    List<Post> postList = await MediaPlayerRepository().findPostByCategory(_children[id].id);
+    Navigator.pushNamed(context, Constants.CategoryDetailListPage, arguments: {'title': _category.title, 'data': postList});
   }
 
   Widget _buildCardTile(BuildContext context, int idx) {
-    if(category.categories != null){
-      return CardTile(category.categories[idx].title, category.categories[idx].description);
-    }
-    
-    return CardTile(category.posts[idx].title, category.posts[idx].description);
+    return CardTile(_children[idx].title, _children[idx].description);
   }
 }

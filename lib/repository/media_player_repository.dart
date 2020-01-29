@@ -1,4 +1,5 @@
 import 'package:audiobook/model/category.dart';
+import 'package:audiobook/model/post.dart';
 import 'package:audiobook/util/db_handler.dart';
 
 class MediaPlayerRepository {
@@ -16,9 +17,14 @@ class MediaPlayerRepository {
     return await db.rawQuery('select * from category where id = $id ').then((list) => Category.fromMap(list.first));
   }
 
-  Future<List<Category>> findByParentCategoryId(int id) async {
+  Future<List<Category>> findChildCategories(int parentId) async {
     var db = await dbHandler.getDatabase;
-    return await db.rawQuery('select * from category where parent_category_id = $id ').then((list) => list.map((val) => Category.fromMap(list.first)).toList());
+    return await db.rawQuery('select * from category where parent_category_id = $parentId ').then((list) => list.map((val) => Category.fromMap(val)).toList());
   }
 
+  /// POSTS
+  Future<List<Post>> findPostByCategory(int catId) async {
+    var db = await dbHandler.getDatabase;
+    return await db.rawQuery('select * from post where category_id = $catId ').then((list) => list.map((val) => Post.fromMap(val)).toList());
+  }
 }

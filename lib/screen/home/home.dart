@@ -13,15 +13,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  var itemsList;
+  List<Category> itemsList;
   var _cardsInRow = 2;
 
   _HomePageState();
 
   @override
   void initState() {
-    initHomePage();
     super.initState();
+    initHomePage();
   }
 
   @override
@@ -45,7 +45,7 @@ class _HomePageState extends State<HomePage> {
     }
     return Container(
       child: GridView.builder(
-        itemCount: itemsList.length,
+        itemCount: itemsList.length ?? 0,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
         itemBuilder: (context, index) => _buildCardStack(context, index),
       ),
@@ -72,10 +72,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _onCardTap(BuildContext context, int id) {
-    //TODO add validation logic
-    //_validateCategory(itemsList[id], context);
-    Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'data': itemsList[id]});
+  _onCardTap(BuildContext context, int id) async {
+    List<Category> categories = await  MediaPlayerRepository().findChildCategories(itemsList[id].id);
+    if(categories != null && categories.isNotEmpty) {
+      Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'data': categories, 'parent': itemsList[id]});
+    }
   }
 
   // validate if category has a post, or dont display category detail page
