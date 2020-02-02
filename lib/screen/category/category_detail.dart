@@ -9,10 +9,10 @@ import 'package:audiobook/widgets/image_banner/image_banner.dart';
 /// Displays `GridView` of available `Category`
 class CategoryDetail extends StatelessWidget {
   final Category _category;
-  final List<Category> _children;
+  List<Category> _children;
   var _cardsInRow = 2;
 
-  CategoryDetail(this._category, this._children);
+  CategoryDetail(this._category/*, this._children*/);
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +23,20 @@ class CategoryDetail extends StatelessWidget {
     
     return Scaffold(
       appBar: AppBar(title: Text(_category.title)),
-      body: Container(
-        child: GridView.builder(
-          itemCount: _children.length, 
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
-          itemBuilder: (context, index) => _buildCardStack(context, index),
-        ),
+      body: FutureBuilder(
+        future: MediaPlayerRepository().findChildCategories(_category.id),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+
+          _children = snapshot.data;
+          return Container(
+            child: GridView.builder(
+              itemCount: _children.length, 
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
+              itemBuilder: (context, index) => _buildCardStack(context, index),
+            ),
+          );
+        },
       ),
     );
   }

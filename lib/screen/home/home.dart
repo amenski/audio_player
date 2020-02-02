@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 
 /// Landing page that displays all categories available
 class HomePage extends StatefulWidget {
-
   @override
   _HomePageState createState() => _HomePageState();
 }
@@ -21,7 +20,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    initHomePage();
   }
 
   @override
@@ -29,26 +27,17 @@ class _HomePageState extends State<HomePage> {
     super.dispose();
   }
 
-  // get all parent categories
-  void initHomePage() async {
-    List<Category> categories = await MediaPlayerRepository().findAllParentCategory();
-    setState(() {
-      itemsList = categories;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     bool landscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    if(landscape){
+    if (landscape) {
       _cardsInRow = 3;
     }
-    return Container(
-      child: GridView.builder(
-        itemCount: itemsList.length ?? 0,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
-        itemBuilder: (context, index) => _buildCardStack(context, index),
-      ),
+    return FutureBuilder(
+      future: MediaPlayerRepository().findAllParentCategory(), // get all parent categories
+      builder: (context, AsyncSnapshot<List<Category>> snapshot) {
+       return _buildGrid(context, snapshot);
+      },
     );
   }
 
@@ -62,10 +51,9 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             ImageBanner(url: itemsList[index].thumbUrl),
             Container(
-              padding: EdgeInsets.symmetric(vertical: 5.0),
-              decoration: BoxDecoration(color: Colors.black45.withOpacity(0.7)),
-              child: CardTile(itemsList[index].title, itemsList[index].description)
-            ),
+                padding: EdgeInsets.symmetric(vertical: 5.0),
+                decoration: BoxDecoration(color: Colors.black45.withOpacity(0.7)),
+                child: CardTile(itemsList[index].title, itemsList[index].description)),
           ],
         ),
       ),
@@ -73,18 +61,19 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onCardTap(BuildContext context, int id) async {
-    List<Category> categories = await  MediaPlayerRepository().findChildCategories(itemsList[id].id);
-    if(categories != null && categories.isNotEmpty) {
-      Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'data': categories, 'parent': itemsList[id]});
-    }
+    Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'parent': itemsList[id]});
   }
 
-  // validate if category has a post, or dont display category detail page
-  // _validateCategory(Category category, BuildContext context) {
-  //   bool valid = (category.posts != null || category.posts.isEmpty);
-  //   if(!valid) {
-  //     final snackBar = SnackBar(content: Text("Not data found."));
-  //     Scaffold.of(context).showSnackBar(snackBar);
-  //   }
-  // }
+  _buildGrid(BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+    if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+
+    itemsList = snapshot.data;
+    return Container(
+      child: GridView.builder(
+        itemCount: itemsList.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
+        itemBuilder: (context, index) => _buildCardStack(context, index),
+      ),
+    );
+  }
 }

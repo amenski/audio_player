@@ -16,7 +16,9 @@ class NetworkOperations {
   Future<Uint8List> _loadFromUrl(String url, {OnError onError}) async {
     Uint8List bytes;
     try {
-      bytes = await readBytes(url);
+      if(url != null) {
+        bytes = await readBytes(url);
+      }
     } on Exception {
       rethrow;
     }

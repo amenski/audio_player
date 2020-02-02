@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
           screen = HomePage();
           break;
         case Constants.CategoryDetailPage:
-          screen = CategoryDetail(arguments['parent'], arguments['data']);
+          screen = CategoryDetail(arguments['parent']);
           break;
         case Constants.CategoryDetailListPage:
           screen = CategoryDetailList(arguments['title'], arguments['data']);
