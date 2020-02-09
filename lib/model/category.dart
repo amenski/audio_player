@@ -7,8 +7,9 @@ class Category {
   String description;
   int parentCategoryId;
   String thumbUrl;
+  DateTime uploadDate;
 
-  Category(this.id, this.title, this.description, this.parentCategoryId, this.thumbUrl);
+  Category(this.id, this.title, this.description, this.parentCategoryId, this.thumbUrl, this.uploadDate);
 
   Category.fromMap(Map<String, dynamic> map) {
     this.id = map['id'];
@@ -19,5 +20,6 @@ class Category {
     if(map['thumb_url'] == null) {
       this.thumbUrl = Constants.DEFAULT_LEADING_IMAGE;
     }
+    this.uploadDate = map['pub_date'];
   }
 }

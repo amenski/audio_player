@@ -1,7 +1,7 @@
 /// Holds constants used in the app, enum's are ommited for the sake of compatibility with earlier version of 
 /// dart (< 2.6), since ``extension`` on dart is added in version > 2.6
 class Constants {
-  static const APP_TITLE = 'Media app';
+  static const APP_TITLE = 'Audio Book/መፅሐፍት በድምፅ';
 
   static const String DEFAULT_LEADING_IMAGE = 'https://i.ytimg.com/vi/hTzugkbH6fs/maxresdefault.jpg'; //TODO change it to asset
 

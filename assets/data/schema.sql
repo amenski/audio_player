@@ -62,3 +62,19 @@ INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_P
 	
 INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_PATH, IS_DOWNLOADED) 
 	VALUES( 4, 21, "ምዕራፍ ፩", "http://debelo.org/debelo_mvc/Audio/HaymanoteAbew/chapter1.mp3", NULL, "ምዕራፍ ፩/Chapter 1", NULL, 0);
+
+
+-- 09/02/2020, የመምህር ግርማ ወንድሙ ስብከቶች  => http://www.radioabisinia.com/MemhirGirma/?C=M;O=A
+ALTER TABLE POST ADD COLUMN PUB_DATE DATETIME;
+
+INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("2", "መምህር ግርማ ወንድሙ","የመምህር ግርማ ወንድሙ ስብከቶች", NULL , "https://i.ytimg.com/vi/53h_XUDDTww/maxresdefault.jpg");
+INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("22", "Radio Abisinia","የመምህር ግርማ ወንድሙ ስብከቶች ", 2 , "https://i.ytimg.com/vi/53h_XUDDTww/maxresdefault.jpg");
+
+INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_PATH, IS_DOWNLOADED, PUB_DATE) 
+	VALUES(1, 22, "Part 1", "http://www.radioabisinia.com/MemhirGirma/Saturday%20June%2016%202012%20Memhir%20Girma%20Part%201.mp3", "https://i.ytimg.com/vi/53h_XUDDTww/maxresdefault.jpg", "Part 1", NULL, 0, "2012-06-16");
+
+INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_PATH, IS_DOWNLOADED, PUB_DATE) 
+	VALUES(2, 22, "Part 10", "http://www.radioabisinia.com/MemhirGirma/Saturday%20May%2023%202012%20Memhir%20Girma%20Part%2010.mp3", "https://i.ytimg.com/vi/53h_XUDDTww/maxresdefault.jpg", "Part 10", NULL, 0, "2012-06-23");
+
+INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_PATH, IS_DOWNLOADED, PUB_DATE) 
+	VALUES(3, 22, "Part 11", "http://www.radioabisinia.com/MemhirGirma/Saturday%20June%2030%202012%20Memhir%20Girma%20Part%2011.mp3", "https://i.ytimg.com/vi/53h_XUDDTww/maxresdefault.jpg", "Part 11", NULL, 0, "2012-07-03");

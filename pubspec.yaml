@@ -18,6 +18,7 @@ dependencies:
   permission_handler:
   flutter_launcher_icons: ^0.7.3
   sqflite: ^1.2.0
+  share:
 
 dev_dependencies:
   flutter_test:
