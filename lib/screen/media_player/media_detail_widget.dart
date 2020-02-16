@@ -174,7 +174,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(this._post.title),
-        actions: <Widget>[
+        actions: [
           Builder(
             builder: (BuildContext context) {
               return IconButton(
@@ -183,7 +183,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 );
               },
             ),
-          
+
           IconButton(
             icon: Icon(Icons.share),
             onPressed: () => print("On share."),
