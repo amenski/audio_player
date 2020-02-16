@@ -1,0 +1,34 @@
+name: audiobook
+description: A project that provides some useful audio book links
+version: 1.0.0
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^0.1.2
+  path_provider: ^1.5.1
+  http:
+  audioplayers:
+  permission_handler:
+  flutter_launcher_icons: ^0.7.3
+  sqflite: ^1.2.0
+  share:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  
+  # Assets
+  assets:
+    - assets/icons/
+    - assets/data/
+    - assets/images/
