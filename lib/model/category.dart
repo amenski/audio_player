@@ -1,23 +1,25 @@
 
-import 'package:audiobook/model/post.dart';
 import 'package:audiobook/util/constants.dart';
 
 class Category {
   int id;
   String title;
   String description;
-  List<Category> categories;
-  List<Post> posts;
-  String thumbnailUrl;
+  int parentCategoryId;
+  String thumbUrl;
+  DateTime uploadDate;
 
-  Category(
-    this.title, 
-    this.description, 
-    {
-      this.categories, 
-      this.posts, 
-      this.thumbnailUrl = Constants.DEFAULT_LEADING_IMAGE
+  Category(this.id, this.title, this.description, this.parentCategoryId, this.thumbUrl, this.uploadDate);
+
+  Category.fromMap(Map<String, dynamic> map) {
+    this.id = map['id'];
+    this.title = map['title'];
+    this.description = map['description'];
+    this.parentCategoryId = map['parent_category_id'];
+    this.thumbUrl = map['thumb_url'];
+    if(map['thumb_url'] == null) {
+      this.thumbUrl = Constants.DEFAULT_LEADING_IMAGE;
     }
-  );
-
+    this.uploadDate = map['pub_date'];
+  }
 }

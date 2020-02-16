@@ -19,7 +19,7 @@ class Util {
   }
 
   _getInputString(List<String> input) {
-    for(int i = 0; i < input.length; i ++){
+    for(int i = 0; i < input.length; i ++) {
      if(input[i] != null && input[i].trim().isNotEmpty) {
         return input[i];
      }

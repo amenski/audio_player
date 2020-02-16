@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:audiobook/util/constants.dart';
 
 class CategoryDetailList extends StatelessWidget {
-  var category;
+  final postList;
+  final title;
 
-  CategoryDetailList(this.category);
+  CategoryDetailList(this.title, this.postList);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(category.title),),
+      appBar: AppBar(title: Text(this.title),),
       body: Container(
       child: ListView.builder(
-        itemCount: category.posts.length,
+        itemCount: postList.length,
         itemBuilder: (context, index) => _buildBody(context, index),
       ),
     ),
@@ -23,16 +24,16 @@ class CategoryDetailList extends StatelessWidget {
     return GestureDetector(
       onTap: () => _navigateToDetail(context, index),
       child: ListTile(
-        title: Text(category.posts[index].title),
+        title: Text(postList[index].title),
         subtitle: Text(
-          category.posts[index].description,
+          postList[index].description,
           overflow: TextOverflow.ellipsis,
           ),
       ),
     );
   }
 
-    _navigateToDetail(BuildContext context, int id) {
-    Navigator.pushNamed(context, Constants.MediaDetailPage, arguments: {'data': category.posts[id]});
+  _navigateToDetail(BuildContext context, int id) {
+    Navigator.pushNamed(context, Constants.MediaDetailPage, arguments: {'data': postList[id]});
   }
 }

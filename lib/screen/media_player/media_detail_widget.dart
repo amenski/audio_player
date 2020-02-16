@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
@@ -68,37 +69,52 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   }
 
   void initAudioPlayer() {
-    audioPlayer = new AudioPlayer();
-    _positionSubscription = audioPlayer.onAudioPositionChanged
-        .listen((p) => setState(() => position = p));
-    _audioPlayerStateSubscription =
-        audioPlayer.onPlayerStateChanged.listen((s) {
-      if (s == AudioPlayerState.PLAYING) {
-        audioPlayer.onDurationChanged.listen((Duration d) {
-          setState(() => duration = d);
-        });
-      } else if (s == AudioPlayerState.STOPPED) {
-        onComplete();
-        setState(() {
-          position = duration;
-        });
-      }
-    }, onError: (msg) {
-      setState(() {
-        playerState = PlayerState.stopped;
-        duration = new Duration(seconds: 0);
-        position = new Duration(seconds: 0);
-      });
-    });
+    try {
+      audioPlayer = new AudioPlayer();
+      _positionSubscription = audioPlayer.onAudioPositionChanged
+          .listen((p) => setState(() => position = p));
+      _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
+            if (s == AudioPlayerState.PLAYING) {
+              audioPlayer.onDurationChanged.listen((Duration d) {
+                setState(() => duration = d);
+              });
+            } else if (s == AudioPlayerState.STOPPED) {
+              onComplete();
+              setState(() {
+                position = duration;
+              });
+            }
+          }, onError: (msg) {
+            setState(() {
+              playerState = PlayerState.stopped;
+              duration = new Duration(seconds: 0);
+              position = new Duration(seconds: 0);
+            });
+          });
+    } catch(e){
+      log(e);
+    }
   }
 
   /// Play from local_file if already downloaded or else from url provided
-  Future play() async {
+  Future play(GlobalKey<ScaffoldState> state) async {
     //seek back to start
     if (position == duration) {
       position = new Duration(seconds: 0);
     }
     await audioPlayer.play(_post.url, isLocal: _post.isDownloaded);
+//    if(playerState != PlayerState.playing) {
+    state.currentState.showSnackBar(
+        new SnackBar(duration: new Duration(seconds: 100), content:
+        new Row(
+          children: <Widget>[
+            new CircularProgressIndicator(),
+            new Text("    Loading ...")
+          ],
+        ),
+        ),
+      );
+//    }
     setState(() {
       playerState = PlayerState.playing;
     });
@@ -122,23 +138,30 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   }
 
   Future _downloadMediaFile(GlobalKey<ScaffoldState> state) async {
-    bool permissionGranted = await PermissionService().getPermissionWriteExternal;
-    if(!this._post.isDownloaded && permissionGranted) {
-      Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
-      File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFileName([this._post.description, this._post.title])); 
-      if (file != null && await file.exists()) {
-        setState(() {
-          localFilePath = file.path;
-          this._post.url = localFilePath;
-          this._post.isDownloaded = true;
-        });
-      }
-    } else {
-      Widget message  = Text(Constants.STORAGE_PERMISSION_DENIED_ERROR);
-      if(this._post.isDownloaded){ message = Text(Constants.MEDIA_ALREADY_DOWNLOADED); localFilePath = this._post.url;}
+    try {
+      bool permissionGranted = await PermissionService().getPermissionWriteExternal;
+      if (!this._post.isDownloaded && permissionGranted) {
+        Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
+        File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFileName([this._post.description, this._post.title]));
+        if (file != null && await file.exists()) {
+          setState(() {
+            localFilePath = file.path;
+            this._post.url = localFilePath;
+            this._post.isDownloaded = true;
+          });
+        }
+      } else {
+        Widget message = Text(Constants.STORAGE_PERMISSION_DENIED_ERROR);
+        if (this._post.isDownloaded) {
+          message = Text(Constants.MEDIA_ALREADY_DOWNLOADED);
+          localFilePath = this._post.url;
+        }
 
-      final snackBar = SnackBar(content: message);
-      state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
+        final snackBar = SnackBar(content: message);
+        state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
+      }
+    } catch(e) {
+      log(e, level: 0);
     }
 
   }
@@ -151,7 +174,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text(this._post.title),
-        actions: <Widget>[
+        actions: [
           Builder(
             builder: (BuildContext context) {
               return IconButton(
@@ -160,7 +183,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 );
               },
             ),
-          
+
           IconButton(
             icon: Icon(Icons.share),
             onPressed: () => print("On share."),
@@ -178,7 +201,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 children: [
                   Text(this._post.title),
                   Text(this._post.description),
-                  new Material(child: _buildPlayer(this._post.thumbnailUrl)),
+                  new Material(child: _buildPlayer(this._post.thumbUrl, _scaffoldKey)),
                 ]),
           ),
         ),
@@ -186,7 +209,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     );
   }
 
-  Widget _buildPlayer(String url) => new SingleChildScrollView(
+  Widget _buildPlayer(String url, GlobalKey<ScaffoldState> scaffoldKey) => new SingleChildScrollView(
       child: Container(
           padding: new EdgeInsets.all(16.0),
           child: new Column(mainAxisSize: MainAxisSize.min, children: [
@@ -197,7 +220,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
             Text(localFilePath ?? ''),
             new Row(mainAxisSize: MainAxisSize.min, children: [
               new IconButton(
-                  onPressed: isPlaying ? null : () => play(),
+                  onPressed: isPlaying ? null : () => play(scaffoldKey),
                   iconSize: 64.0,
                   icon: new Icon(Icons.play_arrow),
                   color: Colors.cyan),
