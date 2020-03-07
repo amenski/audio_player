@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Load image from assets folder or internet
 class ImageBanner extends StatelessWidget {
   final String url;
   final double height;

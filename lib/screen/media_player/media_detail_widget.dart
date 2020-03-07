@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:audiobook/util/constants.dart';
+import 'package:audiobook/widgets/image_banner/image_banner.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -137,9 +138,11 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     setState(() => playerState = PlayerState.stopped);
   }
 
+  // TODO next release
   Future _downloadMediaFile(GlobalKey<ScaffoldState> state) async {
     try {
-      bool permissionGranted = await PermissionService().getPermissionWriteExternal;
+      //bool permissionGranted = await PermissionService().getPermissionWriteExternal;
+      bool permissionGranted = false;
       if (!this._post.isDownloaded && permissionGranted) {
         Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
         File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFileName([this._post.description, this._post.title]));
@@ -151,7 +154,8 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
           });
         }
       } else {
-        Widget message = Text(Constants.STORAGE_PERMISSION_DENIED_ERROR);
+        // Widget message = Text(Constants.STORAGE_PERMISSION_DENIED_ERROR);
+        Widget message = Text(Constants.FEATURE_NOT_AVAILABLE);
         if (this._post.isDownloaded) {
           message = Text(Constants.MEDIA_ALREADY_DOWNLOADED);
           localFilePath = this._post.url;
@@ -184,10 +188,10 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
               },
             ),
 
-          IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () => print("On share."),
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.share),
+          //   onPressed: () => print("On share."),
+          // ),
         ],
       ),
       body: Center(
@@ -215,7 +219,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
           child: new Column(mainAxisSize: MainAxisSize.min, children: [
             new Container(
               constraints: BoxConstraints.expand(height: 200),
-              child: Image.network(url),
+              child: ImageBanner(url: url,),
             ),
             Text(localFilePath ?? ''),
             new Row(mainAxisSize: MainAxisSize.min, children: [
