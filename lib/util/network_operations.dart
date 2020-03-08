@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:audiobook/util/util.dart';
@@ -23,6 +24,21 @@ class NetworkOperations {
       rethrow;
     }
     return bytes;
+  }
+
+  // Check connection to internet, 
+  // Note that on Android, connection does not guarantee connection to Internet. 
+  // For instance, the app might have wifi access but it might be a VPN or a hotel WiFi with no access.
+  // and didn't find a way to check it past checking if data/wifi is connected
+  isConnectedToInternet() async {
+    try {
+      final result = await InternetAddress.lookup("www.google.com");
+      if(result != null || result.isNotEmpty)
+        return true;
+    } catch(e) {
+      print(e);
+    }
+    return false;
   }
 
    /// NetworkOperations instantiation

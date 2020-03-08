@@ -71,6 +71,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   void initAudioPlayer() {
     try {
+      AudioPlayer.logEnabled = true;
       audioPlayer = new AudioPlayer();
       _positionSubscription = audioPlayer.onAudioPositionChanged
           .listen((p) => setState(() => position = p));
@@ -99,23 +100,27 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   /// Play from local_file if already downloaded or else from url provided
   Future play(GlobalKey<ScaffoldState> state) async {
+    final connected = await networkOperations.isConnectedToInternet();
+    if(!connected) {
+      showSnakBar(state, Constants.NO_INTERNET_CONNECTION_ERROR);
+      return;
+    }
+
     //seek back to start
     if (position == duration) {
       position = new Duration(seconds: 0);
     }
     await audioPlayer.play(_post.url, isLocal: _post.isDownloaded);
-//    if(playerState != PlayerState.playing) {
-    state.currentState.showSnackBar(
-        new SnackBar(duration: new Duration(seconds: 100), content:
-        new Row(
-          children: <Widget>[
-            new CircularProgressIndicator(),
-            new Text("    Loading ...")
-          ],
-        ),
-        ),
-      );
-//    }
+    // state.currentState.showSnackBar(
+    //     new SnackBar(duration: new Duration(seconds: 100), content:
+    //     new Row(
+    //       children: <Widget>[
+    //         new CircularProgressIndicator(),
+    //         new Text("    Loading ...")
+    //       ],
+    //     ),
+    //     ),
+    //   );
     setState(() {
       playerState = PlayerState.playing;
     });
@@ -160,9 +165,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
           message = Text(Constants.MEDIA_ALREADY_DOWNLOADED);
           localFilePath = this._post.url;
         }
-
-        final snackBar = SnackBar(content: message);
-        state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
+        showSnakBar(state, message);
       }
     } catch(e) {
       log(e, level: 0);
@@ -256,4 +259,10 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                         style: new TextStyle(fontSize: 24.0))
                   ])
           ])));
+
+  showSnakBar(GlobalKey<ScaffoldState> state, final message) {
+    final snackBar = SnackBar(content: Text(message));
+    state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
+  }
+
 }

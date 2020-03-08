@@ -8,6 +8,7 @@ class Constants {
   static const String STORAGE_PERMISSION_DENIED_ERROR = 'Can not download, storage permission denied';
   static const String MEDIA_ALREADY_DOWNLOADED = 'Already downloaded!.';
   static const String FEATURE_NOT_AVAILABLE = 'This feature will be available soon.';
+  static const String NO_INTERNET_CONNECTION_ERROR = 'No internet, please make sure have internet access.';
 
   static const String DATABASE_FILE_NAME = "database.db";
   
