@@ -6,7 +6,7 @@ class MediaPlayerRepository {
 
   DatabaseHandler dbHandler = DatabaseHandler(); // factory instantiated singleton
   
-  // the Future returns List<Map<String, dynamic>> where a map holds all columns of a single row 
+  // the Future returns List<Map<String, dynamic>> where the map holds all columns and their values as individual entries 
   Future<List<Category>> findAllParentCategory() async {
     var db = await dbHandler.getDatabase;
     return await db.rawQuery('select * from category where parent_category_id is null').then((list) => list.map((row) => Category.fromMap(row)).toList());
@@ -26,5 +26,11 @@ class MediaPlayerRepository {
   Future<List<Post>> findPostByCategory(int catId) async {
     var db = await dbHandler.getDatabase;
     return await db.rawQuery('select * from post where category_id = $catId ').then((list) => list.map((val) => Post.fromMap(val)).toList());
+  }
+
+   /// POST update
+  updatePostOpened(int pId, int catId) async {
+    var db = await dbHandler.getDatabase;
+    db.rawQuery('update post set is_opened = 1 where (id = $pId and category_id = $catId)');
   }
 }

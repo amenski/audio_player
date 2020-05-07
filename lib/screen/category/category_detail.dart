@@ -63,7 +63,7 @@ class CategoryDetail extends StatelessWidget {
 
   _onCardTap(BuildContext context, int id) async {
     List<Post> postList = await MediaPlayerRepository().findPostByCategory(_children[id].id);
-    Navigator.pushNamed(context, Constants.CategoryDetailListPage, arguments: {'title': _category.title, 'data': postList});
+    Navigator.pushNamed(context, Constants.CategoryDetailListPage, arguments: {'title': _children[id].title, 'data': postList});
   }
 
   Widget _buildCardTile(BuildContext context, int idx) {

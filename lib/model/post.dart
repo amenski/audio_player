@@ -1,5 +1,4 @@
 import 'package:audiobook/util/constants.dart';
-import 'package:flutter/material.dart';
 
 /// A field is equivalent to a getter/setter pair. 
 /// A final field is equivalent to a getter.
@@ -13,6 +12,7 @@ class Post {
   String description;
   String downloadPath;
   bool isDownloaded = false;
+  bool isOpened = false;
 
   Post(this.id, this.categoryId, this.title, this.url, this.thumbUrl, this.description, this.downloadPath, this.isDownloaded);
 
@@ -27,5 +27,6 @@ class Post {
     this.description = map['description'];
     this.downloadPath = map['download_path'];
     this.isDownloaded = (map['is_downloaded'] == 1) ? true : false;
+    this.isOpened = (map['is_opened'] == 1) ? true : false;
   }
 }

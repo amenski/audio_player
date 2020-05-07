@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:audiobook/repository/media_player_repository.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/image_banner/image_banner.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -32,6 +33,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   AudioPlayer audioPlayer;
 
   String localFilePath;
+  MediaPlayerRepository repository = new MediaPlayerRepository();
 
   AudioPlayerState playerState = AudioPlayerState.STOPPED;
 
@@ -118,6 +120,9 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   }
 
   void onComplete() {
+    // mark as opened
+    repository.updatePostOpened(_post.id, _post.categoryId);
+
     setState(() {
       position = new Duration();
       playerState = AudioPlayerState.STOPPED;
@@ -265,26 +270,23 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   /// Subscribe to [playState and position]
   subscribeToPositionAndDurationEvent() {
-    _positionSubscription = audioPlayer.onAudioPositionChanged
-          .listen((p) => setState(() => position = p));
-      _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
-            if (s == AudioPlayerState.PLAYING) {
-              audioPlayer.onDurationChanged.listen((Duration d) {
-                setState(() => duration = d);
-              });
-            } else if (s == AudioPlayerState.STOPPED) {
-              onComplete();
-              setState(() {
-                position = duration;
-              });
-            }
-          }, onError: (msg) {
-            setState(() {
-              playerState = AudioPlayerState.STOPPED;
-              duration = new Duration(seconds: 0);
-              position = new Duration(seconds: 0);
-            });
+    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) { 
+      setState(() => position = p);
+    });
+    _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
+          audioPlayer.onDurationChanged.listen((Duration d) {
+            setState(() => duration = d);
           });
+          audioPlayer.onPlayerCompletion.listen((event) {
+            onComplete();
+          });
+        }, onError: (msg) {
+          setState(() {
+            playerState = AudioPlayerState.STOPPED;
+            duration = new Duration(seconds: 0);
+            position = new Duration(seconds: 0);
+          });
+        });
   }
 
   /// Switch between play and pause buttons
