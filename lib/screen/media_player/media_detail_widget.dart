@@ -11,11 +11,8 @@ import 'package:flutter/rendering.dart';
 import 'package:audiobook/model/post.dart';
 import 'package:audiobook/util/file_handler.dart';
 import 'package:audiobook/util/network_operations.dart';
-import 'package:audiobook/util/permission_service.dart';
 
 import '../../util/util.dart';
-
-enum PlayerState { stopped, playing, paused }
 
 class MediaDetailWidget extends StatefulWidget {
   final Post post;
@@ -36,10 +33,10 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   String localFilePath;
 
-  PlayerState playerState = PlayerState.stopped;
+  AudioPlayerState playerState = AudioPlayerState.STOPPED;
 
-  get isPlaying => playerState == PlayerState.playing;
-  get isPaused => playerState == PlayerState.paused;
+  get isPlaying => playerState == AudioPlayerState.PLAYING;
+  get isPaused => playerState == AudioPlayerState.PAUSED;
 
   get durationText =>
       duration != null ? duration.toString().split('.').first : '';
@@ -71,28 +68,9 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   void initAudioPlayer() {
     try {
-      AudioPlayer.logEnabled = true;
+      //AudioPlayer.logEnabled = true;
       audioPlayer = new AudioPlayer();
-      _positionSubscription = audioPlayer.onAudioPositionChanged
-          .listen((p) => setState(() => position = p));
-      _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
-            if (s == AudioPlayerState.PLAYING) {
-              audioPlayer.onDurationChanged.listen((Duration d) {
-                setState(() => duration = d);
-              });
-            } else if (s == AudioPlayerState.STOPPED) {
-              onComplete();
-              setState(() {
-                position = duration;
-              });
-            }
-          }, onError: (msg) {
-            setState(() {
-              playerState = PlayerState.stopped;
-              duration = new Duration(seconds: 0);
-              position = new Duration(seconds: 0);
-            });
-          });
+      subscribeToPositionAndDurationEvent();
     } catch(e){
       log(e);
     }
@@ -122,27 +100,51 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     //     ),
     //   );
     setState(() {
-      playerState = PlayerState.playing;
+      playerState = AudioPlayerState.PLAYING;
     });
   }
 
   Future pause() async {
     await audioPlayer.pause();
-    setState(() => playerState = PlayerState.paused);
+    setState(() => playerState = AudioPlayerState.PAUSED);
   }
 
   Future stop() async {
     await audioPlayer.stop();
     setState(() {
-      playerState = PlayerState.stopped;
       position = new Duration();
+      playerState = AudioPlayerState.STOPPED;
     });
   }
 
   void onComplete() {
-    setState(() => playerState = PlayerState.stopped);
+    setState(() {
+      position = new Duration();
+      playerState = AudioPlayerState.STOPPED;
+    });
   }
 
+  void fastForward() {
+    Duration forward = position + new Duration(seconds: 15);
+    
+    if(forward < duration) {
+      audioPlayer.seek(forward);
+    } else {
+      audioPlayer.stop();
+      playerState = AudioPlayerState.STOPPED;
+    }
+  }
+
+  void fastRewind() {
+    Duration rewind = position - new Duration(seconds: 15);
+    Duration t0 = new Duration();
+
+    if(rewind > t0) {
+      audioPlayer.seek(rewind);
+    } else {
+      audioPlayer.seek(t0);
+    }
+  }
   // TODO next release
   Future _downloadMediaFile(GlobalKey<ScaffoldState> state) async {
     try {
@@ -227,23 +229,19 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
             Text(localFilePath ?? ''),
             new Row(mainAxisSize: MainAxisSize.min, children: [
               new IconButton(
-                  onPressed: isPlaying ? null : () => play(scaffoldKey),
+                  onPressed: isPlaying ? () => fastRewind() : null,
                   iconSize: 64.0,
-                  icon: new Icon(Icons.play_arrow),
+                  icon: new Icon(Icons.fast_rewind, semanticLabel: "15",),
                   color: Colors.cyan),
+              _playOrPauseSwitch(scaffoldKey), // switch play pause
               new IconButton(
-                  onPressed: isPlaying ? () => pause() : null,
+                  onPressed: isPlaying ? () => fastForward() : null,
                   iconSize: 64.0,
-                  icon: new Icon(Icons.pause),
-                  color: Colors.cyan),
-              new IconButton(
-                  onPressed: isPlaying || isPaused ? () => stop() : null,
-                  iconSize: 64.0,
-                  icon: new Icon(Icons.stop),
+                  icon: new Icon(Icons.fast_forward, semanticLabel: "15",),
                   color: Colors.cyan),
             ]),
             duration == null
-                ? new Container()
+                ? new Container() // display nothing
                 : new Column(children: <Widget>[
                     Slider(
                       value: position?.inMilliseconds?.toDouble() ?? 0.0,
@@ -265,4 +263,44 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
   }
 
+  /// Subscribe to [playState and position]
+  subscribeToPositionAndDurationEvent() {
+    _positionSubscription = audioPlayer.onAudioPositionChanged
+          .listen((p) => setState(() => position = p));
+      _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
+            if (s == AudioPlayerState.PLAYING) {
+              audioPlayer.onDurationChanged.listen((Duration d) {
+                setState(() => duration = d);
+              });
+            } else if (s == AudioPlayerState.STOPPED) {
+              onComplete();
+              setState(() {
+                position = duration;
+              });
+            }
+          }, onError: (msg) {
+            setState(() {
+              playerState = AudioPlayerState.STOPPED;
+              duration = new Duration(seconds: 0);
+              position = new Duration(seconds: 0);
+            });
+          });
+  }
+
+  /// Switch between play and pause buttons
+  Widget _playOrPauseSwitch(GlobalKey<ScaffoldState> scaffoldKey) {
+    if(playerState != AudioPlayerState.PLAYING) {
+      return new IconButton(
+                  onPressed: isPlaying ? null : () => play(scaffoldKey),
+                  iconSize: 64.0,
+                  icon: new Icon(Icons.play_arrow),
+                  color: Colors.cyan);
+    }
+
+    return new IconButton(
+                  onPressed: isPlaying ? () => pause() : null,
+                  iconSize: 64.0,
+                  icon: new Icon(Icons.pause),
+                  color: Colors.cyan);
+  }
 }

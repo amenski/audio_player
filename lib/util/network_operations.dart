@@ -28,7 +28,7 @@ class NetworkOperations {
 
   // Check connection to internet, 
   // Note that on Android, connection does not guarantee connection to Internet. 
-  // For instance, the app might have wifi access but it might be a VPN or a hotel WiFi with no access.
+  // For instance, the phone may have wifi access but it might be a VPN or a hotel WiFi with no internet access.
   // and didn't find a way to check it past checking if data/wifi is connected
   isConnectedToInternet() async {
     try {
