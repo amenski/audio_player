@@ -1,3 +1,4 @@
+import 'package:audiobook/services/work_manager_service.dart';
 import 'package:flutter/material.dart';
 
 import 'screen/category/category_detail.dart';
@@ -11,6 +12,10 @@ void main() => runApp(MyApp());
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    WorkManagerService service = new WorkManagerService();
+    service.initializeWorker();
+    service.registerWeeklyTask();
+    // service.registerOneTimeTask();
     return new MaterialApp(
       onGenerateRoute: _routes(),
       home: new Scaffold(

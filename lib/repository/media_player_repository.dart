@@ -33,4 +33,11 @@ class MediaPlayerRepository {
     var db = await dbHandler.getDatabase;
     db.rawQuery('update post set is_opened = 1 where (id = $pId and category_id = $catId)');
   }
+
+  // === BE related ===
+  Future<int> saveLastVersionData(int version) async {
+    var db = await dbHandler.getDatabase;
+    Map<String, dynamic> data = <String, dynamic>{'version': version}; // or = new Map();
+    return db.insert("version", data);
+  }
 }

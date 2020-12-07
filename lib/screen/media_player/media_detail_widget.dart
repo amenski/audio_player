@@ -154,7 +154,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   Future _downloadMediaFile(GlobalKey<ScaffoldState> state) async {
     try {
       //bool permissionGranted = await PermissionService().getPermissionWriteExternal;
-      bool permissionGranted = false;
+      bool permissionGranted = true;
       if (!this._post.isDownloaded && permissionGranted) {
         Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
         File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFileName([this._post.description, this._post.title]));
@@ -250,8 +250,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 : new Column(children: <Widget>[
                     Slider(
                       value: position?.inMilliseconds?.toDouble() ?? 0.0,
-                      onChanged: (double value) => audioPlayer
-                          .seek(Duration(milliseconds: value.toInt())),
+                      onChanged: (double value) => audioPlayer.seek(Duration(milliseconds: value.toInt())),
                       min: 0.0,
                       max: duration.inMilliseconds.toDouble(),
                     ),

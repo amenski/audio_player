@@ -1,5 +1,7 @@
 /*
 * DB script
+* Run this script against database.db before running the app.
+* The app will not execute any script, but copy the database.db on install
 */
 
 -- ddl
@@ -22,6 +24,11 @@ CREATE TABLE IF NOT EXISTS "category" (
 	"description"	TEXT,
 	"parent_category_id"	INTEGER,
 	"thumb_url"	TEXT
+);
+
+CREATE TABLE IF NOT EXISTS "version" (
+	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"version" INTEGER not null
 );
 COMMIT;
 

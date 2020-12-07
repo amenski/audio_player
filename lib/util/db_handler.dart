@@ -9,8 +9,8 @@ import 'package:sqflite/sqflite.dart';
 import 'constants.dart';
 
 class DatabaseHandler {
-  DatabaseHandler._intenal();
-  static final _instance = DatabaseHandler._intenal();
+  DatabaseHandler._internal(); //private constructor, could also be DatabaseHandler._();
+  static final _instance = DatabaseHandler._internal();
 
   factory DatabaseHandler() => _instance;
 

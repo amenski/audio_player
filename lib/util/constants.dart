@@ -1,5 +1,6 @@
 /// Holds constants used in the app, enum's are ommited for the sake of compatibility with earlier version of 
-/// dart (< 2.6), since ``extension`` on dart is added in version > 2.6
+// @dart (< 2.6), since ``extension`` on dart is added in version > 2.6
+
 class Constants {
   static const APP_TITLE = 'Audio Book/መፅሐፍት በድምፅ';
 
@@ -17,6 +18,11 @@ class Constants {
   static const CategoryDetailPage = '/category-detail';
   static const CategoryDetailListPage = '/category-detail-list';
   static const MediaDetailPage = '/media-detail';
+
+  // BE
+  static const SyncEveryWeek = "syncEveryWeekPeriodicWork";
+  static const String BE_IP ="http://192.168.1.8:4000/api";
+  static const String LAST_VERSION_EP = BE_IP + '/version/last-version';
 
 
   // Instantiation should not be allowed
