@@ -4,6 +4,7 @@ import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/card/card_tile.dart';
 import 'package:audiobook/widgets/image_banner/image_banner.dart';
 import 'package:flutter/material.dart';
+import 'package:audiobook/services/work_manager_service.dart';
 
 /// Landing page that displays all categories available
 class HomePage extends StatefulWidget {
@@ -14,12 +15,15 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Category> itemsList;
   var _cardsInRow = 2;
+  //background service
+  WorkManagerService service = new WorkManagerService();
 
   _HomePageState();
 
   @override
   void initState() {
     super.initState();
+    service.initializeWorker();
   }
 
   @override
@@ -61,6 +65,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onCardTap(BuildContext context, int id) async {
+    service.registerOneTimeTask();
     Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'parent': itemsList[id]});
   }
 

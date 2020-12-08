@@ -6,6 +6,10 @@
 
 -- ddl
 BEGIN TRANSACTION;
+CREATE TABLE "android_metadata" (
+	"locale"	TEXT
+);
+
 CREATE TABLE IF NOT EXISTS "post" (
 	"id"	INTEGER,
 	"category_id"	INTEGER NOT NULL,
@@ -31,6 +35,10 @@ CREATE TABLE IF NOT EXISTS "version" (
 	"version" INTEGER not null
 );
 COMMIT;
+
+BEGIN TRANSACTION
+-- Locale metadata
+INSERT INTO android_metadata("locale") VALUES("en_US");
 
 -- categories
 INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("1", "በንባብ/ Audio books","በንባብ/ Audio books", NULL , "assets/images/reading-book.jpg");
@@ -944,3 +952,6 @@ INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_P
 
 INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_PATH, IS_DOWNLOADED, IS_OPENED) 
  VALUES(91 , 23, "ክፍል 88", "http://debelo.org/debelo_mvc/Files/books/meshafemenecosat/AregawiMenfesawi/88.mp3", "assets/images/reading-book.jpg", "ክፍል 88", NULL, 0, 0);
+
+
+COMMIT;

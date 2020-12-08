@@ -1,5 +1,6 @@
 import 'package:audiobook/model/category.dart';
 import 'package:audiobook/model/post.dart';
+import 'package:audiobook/model/version.dart';
 import 'package:audiobook/util/db_handler.dart';
 
 class MediaPlayerRepository {
@@ -35,9 +36,15 @@ class MediaPlayerRepository {
   }
 
   // === BE related ===
-  Future<int> saveLastVersionData(int version) async {
+  Future<Version> getLastVersionData() async {
     var db = await dbHandler.getDatabase;
-    Map<String, dynamic> data = <String, dynamic>{'version': version}; // or = new Map();
-    return db.insert("version", data);
+    List<Map<String, dynamic>> val = await db.rawQuery("select * from version limit 1");
+    return Version.fromMap(val.first);
+  }
+
+  Future<int> saveLastVersionData(int version) async {
+    print("version to save: "+ version.toString()); //TODO remove
+    var db = await dbHandler.getDatabase;
+    return await db.rawInsert("insert into version(version) values (?)", [version]);
   }
 }

@@ -5,9 +5,10 @@ class Version {
   int id;
   int version;
 
-  Version(this.version);
+  Version(this.id, this.version);
 
-  factory Version.fromJson(Map<String, dynamic> json) {
-    return new Version(json["version"]);
+  Version.fromMap(Map<String, dynamic> map) {
+    this.id = map["id"];
+    this.version = map["version"];
   }
 }
