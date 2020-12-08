@@ -22,8 +22,12 @@ class Constants {
   // BE
   static const SyncEveryWeek = "syncEveryWeekPeriodicWork";
   static const String BE_IP ="http://192.168.1.8:4000/api";
-  static const String LAST_VERSION_EP = BE_IP + '/version/last-version';
+  static const String VERSION_EP = BE_IP + '/version';
+  static const String VERSION_LATEST_EP = VERSION_EP + '/last-version';
 
+  static const String CATEGORY_EP = BE_IP + '/category';
+
+  static const String POST_EP = BE_IP + '/post';
 
   // Instantiation should not be allowed
   Constants._privateConstructor();

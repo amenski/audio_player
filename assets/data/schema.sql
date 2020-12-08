@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS "category" (
 );
 
 CREATE TABLE IF NOT EXISTS "version" (
-	"id"	INTEGER PRIMARY KEY AUTOINCREMENT,
+	"id"	INTEGER,
 	"version" INTEGER not null
 );
 COMMIT;
@@ -39,6 +39,9 @@ COMMIT;
 BEGIN TRANSACTION
 -- Locale metadata
 INSERT INTO android_metadata("locale") VALUES("en_US");
+
+-- starting version
+INSERT INTO version(id, version) values(1,1);
 
 -- categories
 INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("1", "በንባብ/ Audio books","በንባብ/ Audio books", NULL , "assets/images/reading-book.jpg");

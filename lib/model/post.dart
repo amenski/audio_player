@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:audiobook/util/constants.dart';
 
 /// A field is equivalent to a getter/setter pair. 
@@ -17,6 +19,21 @@ class Post {
   Post(this.id, this.categoryId, this.title, this.url, this.thumbUrl, this.description, this.downloadPath, this.isDownloaded);
 
   Post.fromMap(Map<String, dynamic> map) {
+    this.id = map['id'];
+    this.categoryId = map['category_id'];
+    this.title = map['title'];
+    this.url = map['url'];
+    if(map['thumb_url'] != null) {
+      this.thumbUrl = map['thumb_url'];
+    }
+    this.description = map['description'];
+    this.downloadPath = map['download_path'];
+    this.isDownloaded = (map['is_downloaded'] == 1) ? true : false;
+    this.isOpened = (map['is_opened'] == 1) ? true : false;
+  }
+
+  Post.fromJson(String json) {
+    Map<String, dynamic> map = jsonDecode(json);
     this.id = map['id'];
     this.categoryId = map['category_id'];
     this.title = map['title'];

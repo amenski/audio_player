@@ -9,6 +9,7 @@ import 'package:http/http.dart';
 /// So, I created a way to check the version on the BE and update this client based on that number. It is not the best way,
 /// but it is a good way to dodge through configuring notifications systems like RabbitMQ.
 class BackendSyncService {
+  static int currentClientVersion = 0;
   MediaPlayerRepository repo = new MediaPlayerRepository();
 
   // === Methods for updating internal database ===
@@ -16,13 +17,14 @@ class BackendSyncService {
   /// Compare locally saved version number against what's on BE
   /// return true if they are different
   Future<bool> isUpdateRequired() async {
-    Response response = await this.getCurrentVersionFromBE(Constants.LAST_VERSION_EP,
+    Response response = await this.getCurrentVersionFromBE(Constants.VERSION_LATEST_EP,
         onError: (Exception exception) => print('getVersionData => exception $exception'));
 
     Version version = await repo.getLastVersionData();
+    currentClientVersion = version.version;
     return (response != null &&
         response.body != null &&
-        int.parse(response.body) > version.version);
+        int.parse(response.body) > currentClientVersion);
   }
 
   // === Utility methods External operations ===
@@ -32,11 +34,28 @@ class BackendSyncService {
     return await _callApi(url, onError: onError);
   }
 
+  /// Get the next version from BE.
+  /// Note: the BE might be very ahead of the client. e.g. client having v=1 and BE having v=100,
+  /// this will be synced one at a time for each version, i.e. no bulk updates
+  Future<Response> getNextLatestVersionData({onError: OnError}) async {
+    return await _callApi(Constants.VERSION_EP + "/" + (currentClientVersion + 1).toString(), onError: onError);
+  }
+
+  // get new post by id
+  Future<Response> getPostById(String id, {onError: OnError}) async {
+    return await _callApi(Constants.POST_EP + "/" + id, onError: onError);
+  }
+
+  // get new category by id
+  Future<Response> getCategoryById(String id, {onError: OnError}) async {
+    return await _callApi(Constants.CATEGORY_EP + "/" + id, onError: onError);
+  }
+
   //call api
-  Future<Response> _callApi(String url, {Map<String, dynamic> header, OnError onError}) async {
+  Future<Response> _callApi(String url, {Map<String, dynamic> headers, OnError onError}) async {
     Future<Response> response = Future.value(new Response("", HttpStatus.notFound));
     try {
-      response = get(url);
+      response = get(url, headers: headers);
     } catch (e) {
       onError(e);
     }
