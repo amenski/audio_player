@@ -1,6 +1,6 @@
-import 'package:audiobook/model/category.dart';
 import 'package:audiobook/model/post.dart';
 import 'package:audiobook/model/version.dart';
+import 'package:audiobook/model/category.dart';
 import 'package:audiobook/util/db_handler.dart';
 
 class MediaPlayerRepository {
@@ -43,8 +43,35 @@ class MediaPlayerRepository {
   }
 
   Future<int> saveLastVersionData(int version) async {
-    print("version to save: "+ version.toString()); //TODO remove
     var db = await dbHandler.getDatabase;
-    return await db.rawInsert("insert into version(version) values (?)", [version]);
+    return await db.rawUpdate("update version set version = ? where id=1", [version]);
+  }
+
+  // save nested post from BE on a separate table,
+  // the client and BE have model difference
+  Future<int> saveNewCategory(Map<String, dynamic> category) async {
+    var db = await dbHandler.getDatabase;
+    String parent = category['parent_category_id_be']; //will not be saved
+    category.remove('parent_category_id_be'); // remove or else it is an exception
+    if(parent != null) {
+      List<Map<String, dynamic>> values = await db.rawQuery("select id from category where external_id = ?", [parent]);
+      category["parent_category_id"] = values[0]["id"];
+    }
+    return await db.insert("category", category);
+  }
+
+  Future<int> saveNewPost(Map<String, dynamic> post) async {
+    var db = await dbHandler.getDatabase;
+    // no autoincrement for non-primary keys, so use MAX,
+    // select MAX(id) from post where category_id = "category_id";
+    String insertString ="insert into post (id, category_id, title, url, thumb_url, description) "
+        + " values((select IFNULL(MAX(id), 0) + 1 from post where category_id = ${post['category_id']}), ?, ?, ?, ?, ?)";
+    return await db.rawInsert(insertString, [post['category_id'], post['title'], post['url'], post['thumb_url'], post['description']]);
+  }
+
+  Future<Category> findCategoryByExternalId(String externalId) async {
+    var db = await dbHandler.getDatabase;
+    List<Map<String, dynamic>> values = await db.rawQuery("select * from category where external_id = ? limit 1", [externalId]);
+    return Category.fromMap(values[0]);
   }
 }

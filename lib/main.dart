@@ -1,11 +1,9 @@
-import 'package:audiobook/services/work_manager_service.dart';
 import 'package:flutter/material.dart';
-
-import 'screen/category/category_detail.dart';
-import 'screen/category/category_detail_list.dart';
-import 'screen/home/home.dart';
-import 'screen/media_player/media_detail_widget.dart';
-import 'util/constants.dart';
+import 'package:audiobook/util/constants.dart';
+import 'package:audiobook/screen/home/home.dart';
+import 'package:audiobook/screen/category/category_detail.dart';
+import 'package:audiobook/screen/category/category_detail_list.dart';
+import 'package:audiobook/screen/media_player/media_detail_widget.dart';
 
 void main() => runApp(MyApp());
 

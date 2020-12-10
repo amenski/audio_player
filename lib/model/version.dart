@@ -8,7 +8,7 @@ class Version {
   int version;
   //BE
   String type;
-  String objectId;
+  String objectId; // an id associated with the Post or Category
 
   Version(this.id, this.version);
 

@@ -1,32 +1,57 @@
-import 'package:audiobook/model/category.dart';
+import 'dart:convert';
+
+import 'package:http/http.dart';
 import 'package:audiobook/model/post.dart';
 import 'package:audiobook/model/version.dart';
-import 'package:audiobook/util/constants.dart';
-import 'package:http/http.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:audiobook/util/constants.dart';
+import 'package:audiobook/model/category.dart';
 import 'package:audiobook/services/backend_sync_service.dart';
+import 'package:audiobook/repository/media_player_repository.dart';
 
-/// A top level function(a func outside of a class), used as an entrypoint for flutter WorkManager
+/// A top level function(a func outside of a class), used as an entry-point for flutter WorkManager
 void callbackBackgroundWorkDispatcher() {
   Workmanager.executeTask((taskName, inputData) async {
     switch (taskName) {
       case Constants.SyncEveryWeek:
         BackendSyncService beService = BackendSyncService();
-        bool required = await beService.isUpdateRequired();
-        if(required) {
-          Response response = await beService.getNextLatestVersionData(onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
-          Version next =  Version.fromJson(response.body);
-          if(next != null && next.type !=  null) {
-            switch(next.type) {
+        MediaPlayerRepository mediaPlayerRepository = new MediaPlayerRepository();
+        int nextVersion = await beService.isUpdateRequired();
+        if (nextVersion != 0) {
+          Response response = await beService.getNextLatestVersionData(nextVersion, onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+          Version next = Version.fromJson(response.body);
+          if (next != null && next.type != null) {
+            switch (next.type) {
               case "P":
-                Response postResponse = await beService.getPostById(next.objectId);
-                Post post = Post.fromJson(postResponse.body);
-                print("new Post data: " + post.toString());
+                Response postResponse = await beService.getPostById(
+                    next.objectId,
+                    onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+                Map<String, dynamic> map = jsonDecode(postResponse.body);
+                // get id of category
+                Category category = await mediaPlayerRepository.findCategoryByExternalId(map["categoryId"]);
+
+                // remove unnecessary fields(before sending the map) and the data-type of categoryId on BE and client are different
+                map.removeWhere((key, value) => key == "_id" || key == "categoryId" || key == "modifiedAt");
+                Post post = Post.fromMap(map);
+                post.categoryId = category.id;
+                int newId = await mediaPlayerRepository.saveNewPost(post.toMap());
+                if (newId != null) {
+                  await mediaPlayerRepository.saveLastVersionData(next.version);
+                }
                 break;
               case "C":
-                Response catResponse = await beService.getCategoryById(next.objectId);
-                Category category = Category.fromJson(catResponse.body);
-                print("new Category data: " + category.toString());
+                Response catResponse = await beService.getCategoryById(
+                    next.objectId,
+                    onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+                //removes unnecessary fields like createdAt
+                Category cat = Category.fromJson(catResponse.body);
+                int newId = await mediaPlayerRepository.saveNewCategory(cat.toMap());
+                if (newId != null) {
+                  await mediaPlayerRepository.saveLastVersionData(next.version);
+                }
+                break;
+              default:
+                print("No case for : " + next.type);
                 break;
             }
           }

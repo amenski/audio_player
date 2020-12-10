@@ -25,6 +25,7 @@ class DatabaseHandler {
   }
 
   initDb() async {
+    //Sqflite.devSetDebugModeOn(true);
     Directory appDocDir;
     var path;
 

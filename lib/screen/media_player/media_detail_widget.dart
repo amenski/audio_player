@@ -3,17 +3,16 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:audiobook/repository/media_player_repository.dart';
-import 'package:audiobook/util/constants.dart';
-import 'package:audiobook/widgets/image_banner/image_banner.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:audiobook/util/util.dart';
 import 'package:audiobook/model/post.dart';
+import 'package:audiobook/util/constants.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:audiobook/util/file_handler.dart';
 import 'package:audiobook/util/network_operations.dart';
-
-import '../../util/util.dart';
+import 'package:audiobook/widgets/image_banner/image_banner.dart';
+import 'package:audiobook/repository/media_player_repository.dart';
 
 class MediaDetailWidget extends StatefulWidget {
   final Post post;

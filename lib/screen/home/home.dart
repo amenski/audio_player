@@ -1,10 +1,10 @@
+import 'package:flutter/material.dart';
 import 'package:audiobook/model/category.dart';
-import 'package:audiobook/repository/media_player_repository.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/card/card_tile.dart';
-import 'package:audiobook/widgets/image_banner/image_banner.dart';
-import 'package:flutter/material.dart';
 import 'package:audiobook/services/work_manager_service.dart';
+import 'package:audiobook/widgets/image_banner/image_banner.dart';
+import 'package:audiobook/repository/media_player_repository.dart';
 
 /// Landing page that displays all categories available
 class HomePage extends StatefulWidget {
@@ -24,6 +24,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     service.initializeWorker();
+//    service.registerWeeklyTask();
+    service.registerOneTimeTask(); //better than weekly since the download is sequential(one at a time => a day)
   }
 
   @override
@@ -65,7 +67,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onCardTap(BuildContext context, int id) async {
-    service.registerOneTimeTask();
     Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'parent': itemsList[id]});
   }
 
