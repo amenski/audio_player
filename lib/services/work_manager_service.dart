@@ -74,8 +74,7 @@ void callbackBackgroundWorkDispatcher() {
 /// the job should run twice a day atleast to overcome the second case.
 class WorkManagerService {
   void initializeWorker() {
-    Workmanager.initialize(callbackBackgroundWorkDispatcher,
-        isInDebugMode: true);
+    Workmanager.initialize(callbackBackgroundWorkDispatcher);
   }
 
   void registerWeeklyTask() {
