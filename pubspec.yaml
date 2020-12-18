@@ -20,6 +20,7 @@ dependencies:
   sqflite: ^1.2.0
   share:
   workmanager: ^0.2.0
+  uuid: ^2.2.2
 
 dev_dependencies:
   flutter_test:

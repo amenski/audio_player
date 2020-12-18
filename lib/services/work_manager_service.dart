@@ -17,6 +17,7 @@ void callbackBackgroundWorkDispatcher() {
         BackendSyncService beService = BackendSyncService();
         MediaPlayerRepository mediaPlayerRepository = new MediaPlayerRepository();
         int nextVersion = await beService.isUpdateRequired();
+        // nextVersion will be 0 whenever there is a problem
         if (nextVersion != 0) {
           Response response = await beService.getNextLatestVersionData(nextVersion, onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
           Version next = Version.fromJson(response.body);
@@ -74,7 +75,7 @@ void callbackBackgroundWorkDispatcher() {
 /// the job should run twice a day atleast to overcome the second case.
 class WorkManagerService {
   void initializeWorker() {
-    Workmanager.initialize(callbackBackgroundWorkDispatcher);
+    Workmanager.initialize(callbackBackgroundWorkDispatcher, isInDebugMode: true);
   }
 
   void registerWeeklyTask() {
