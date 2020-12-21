@@ -13,7 +13,7 @@ import 'package:audiobook/repository/media_player_repository.dart';
 void callbackBackgroundWorkDispatcher() {
   Workmanager.executeTask((taskName, inputData) async {
     switch (taskName) {
-      case Constants.SyncEveryWeek:
+      case Constants.SyncEveryDay:
         BackendSyncService beService = BackendSyncService();
         MediaPlayerRepository mediaPlayerRepository = new MediaPlayerRepository();
         int nextVersion = await beService.isUpdateRequired();
@@ -72,7 +72,7 @@ void callbackBackgroundWorkDispatcher() {
 /// Because of some limitations
 ///   - No real push notification(we have to call BE manual way),
 ///   - Any particular call will only download 1 item(post/category)...
-/// the job should run twice a day atleast to overcome the second case.
+/// the job should run once a day atleast to overcome the second case.
 class WorkManagerService {
   void initializeWorker() {
     Workmanager.initialize(callbackBackgroundWorkDispatcher, isInDebugMode: true);
@@ -89,7 +89,7 @@ class WorkManagerService {
 
   void registerOneTimeTask() {
     Workmanager.registerOneOffTask(
-        Constants.SyncEveryWeek, Constants.SyncEveryWeek,
+        Constants.SyncEveryDay, Constants.SyncEveryDay,
         constraints: Constraints(
             networkType: NetworkType.connected, requiresBatteryNotLow: true));
   }

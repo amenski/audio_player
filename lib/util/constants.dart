@@ -21,6 +21,7 @@ class Constants {
 
   // BE
   static const SyncEveryWeek = "syncEveryWeekPeriodicWork";
+  static const SyncEveryDay = "syncEveryDay";
   static const String BE_IP ="http://192.168.1.8:4000/api";
   static const String VERSION_EP = BE_IP + '/version';
   static const String VERSION_LATEST_EP = VERSION_EP + '/last-version';
