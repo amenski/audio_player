@@ -3,17 +3,16 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:audiobook/repository/media_player_repository.dart';
-import 'package:audiobook/util/constants.dart';
-import 'package:audiobook/widgets/image_banner/image_banner.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:audiobook/util/util.dart';
 import 'package:audiobook/model/post.dart';
+import 'package:audiobook/util/constants.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:audiobook/util/file_handler.dart';
 import 'package:audiobook/util/network_operations.dart';
-
-import '../../util/util.dart';
+import 'package:audiobook/widgets/image_banner/image_banner.dart';
+import 'package:audiobook/repository/media_player_repository.dart';
 
 class MediaDetailWidget extends StatefulWidget {
   final Post post;
@@ -154,7 +153,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   Future _downloadMediaFile(GlobalKey<ScaffoldState> state) async {
     try {
       //bool permissionGranted = await PermissionService().getPermissionWriteExternal;
-      bool permissionGranted = false;
+      bool permissionGranted = true;
       if (!this._post.isDownloaded && permissionGranted) {
         Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
         File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFileName([this._post.description, this._post.title]));
@@ -250,8 +249,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 : new Column(children: <Widget>[
                     Slider(
                       value: position?.inMilliseconds?.toDouble() ?? 0.0,
-                      onChanged: (double value) => audioPlayer
-                          .seek(Duration(milliseconds: value.toInt())),
+                      onChanged: (double value) => audioPlayer.seek(Duration(milliseconds: value.toInt())),
                       min: 0.0,
                       max: duration.inMilliseconds.toDouble(),
                     ),

@@ -1,9 +1,14 @@
 /*
 * DB script
+* Run this script against database.db before running the app.
+* The app will not execute any script, but copy the database.db on install
 */
 
 -- ddl
-BEGIN TRANSACTION;
+CREATE TABLE "android_metadata" (
+	"locale"	TEXT
+);
+
 CREATE TABLE IF NOT EXISTS "post" (
 	"id"	INTEGER,
 	"category_id"	INTEGER NOT NULL,
@@ -21,17 +26,28 @@ CREATE TABLE IF NOT EXISTS "category" (
 	"title"	TEXT NOT NULL,
 	"description"	TEXT,
 	"parent_category_id"	INTEGER,
-	"thumb_url"	TEXT
+	"thumb_url"	TEXT,
+	"external_id" TEXT not null
 );
-COMMIT;
+
+CREATE TABLE IF NOT EXISTS "version" (
+	"id"	INTEGER,
+	"version" INTEGER not null
+);
+
+-- Locale metadata
+INSERT INTO android_metadata("locale") VALUES("en_US");
+
+-- starting version
+INSERT INTO version(id, version) values(1,0);
 
 -- categories
-INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("1", "በንባብ/ Audio books","በንባብ/ Audio books", NULL , "assets/images/reading-book.jpg");
+INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL, EXTERNAL_ID) VALUES("1", "በንባብ/ Audio books","በንባብ/ Audio books", NULL , "assets/images/reading-book.jpg", "");
 
 -- PARENT-categories
-INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("20", "መጽሀፈ መነኮሳት ፊልክስዮስ","መጽሀፈ መነኮሳት ፊልክስዮስ", 1 , "assets/images/reading-book.jpg");
-INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("21", "ሃይማኖተ አበው","ሃይማኖተ አበው", 1 , "assets/images/reading-book.jpg");
-INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("23", "መጽሐፈ መነኮሳት አረጋዊ መንፈሳዊ","መጽሐፈ መነኮሳት አረጋዊ መንፈሳዊ ", 1 , "assets/images/reading-book.jpg");
+INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL, EXTERNAL_ID) VALUES("20", "መጽሀፈ መነኮሳት ፊልክስዮስ","መጽሀፈ መነኮሳት ፊልክስዮስ", 1 , "assets/images/reading-book.jpg", "");
+INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL, EXTERNAL_ID) VALUES("21", "ሃይማኖተ አበው","ሃይማኖተ አበው", 1 , "assets/images/reading-book.jpg", "");
+INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL, EXTERNAL_ID) VALUES("23", "መጽሐፈ መነኮሳት አረጋዊ መንፈሳዊ","መጽሐፈ መነኮሳት አረጋዊ መንፈሳዊ ", 1 , "assets/images/reading-book.jpg", "");
 
 
 
@@ -70,8 +86,8 @@ INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_P
 -- 09/02/2020, የመምህር ግርማ ወንድሙ ስብከቶች  => http://www.radioabisinia.com/MemhirGirma/?C=M;O=A
 ALTER TABLE POST ADD COLUMN PUB_DATE DATETIME;
 
-INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("2", "መምህር ግርማ ወንድሙ","የመምህር ግርማ ወንድሙ ስብከቶች", NULL , "assets/images/aba-girma.jpg");
-INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL) VALUES("22", "Radio Abisinia","የመምህር ግርማ ወንድሙ ስብከቶች ", 2 , "assets/images/radio-abisinia.jpg");
+INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL, EXTERNAL_ID) VALUES("2", "መምህር ግርማ ወንድሙ","የመምህር ግርማ ወንድሙ ስብከቶች", NULL , "assets/images/aba-girma.jpg", "");
+INSERT INTO CATEGORY(ID,TITLE,DESCRIPTION, PARENT_CATEGORY_ID,THUMB_URL, EXTERNAL_ID) VALUES("22", "Radio Abisinia","የመምህር ግርማ ወንድሙ ስብከቶች ", 2 , "assets/images/radio-abisinia.jpg", "");
 
 INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_PATH, IS_DOWNLOADED, PUB_DATE) 
 	VALUES(1, 22, "Part 1", "http://www.radioabisinia.com/MemhirGirma/Saturday%20June%2016%202012%20Memhir%20Girma%20Part%201.mp3", "assets/images/aba-girma.jpg", "Part 1", NULL, 0, "2012-06-16");
@@ -937,3 +953,4 @@ INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_P
 
 INSERT INTO POST(ID, CATEGORY_ID, TITLE, URL, THUMB_URL, DESCRIPTION, DOWNLOAD_PATH, IS_DOWNLOADED, IS_OPENED) 
  VALUES(91 , 23, "ክፍል 88", "http://debelo.org/debelo_mvc/Files/books/meshafemenecosat/AregawiMenfesawi/88.mp3", "assets/images/reading-book.jpg", "ክፍል 88", NULL, 0, 0);
+

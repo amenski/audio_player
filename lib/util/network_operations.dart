@@ -2,46 +2,45 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:audiobook/util/util.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart';
 
 class NetworkOperations {
-  Future<Uint8List> getFileFromNetwork(String url, { OnError onError}) async {
+  Future<Uint8List> getFileFromNetwork(String url, {OnError onError}) async {
     final bytes = await _loadFromUrl(url,
-        onError: (Exception exception) =>
-            print('getFileFromNetwork => exception $exception'));
+        onError: (Exception exception) => print('getFileFromNetwork => exception $exception'));
 
     return bytes;
   }
 
   /// Load a file from `url`
   Future<Uint8List> _loadFromUrl(String url, {OnError onError}) async {
-    Uint8List bytes;
+    Uint8List bytes = Uint8List.fromList(new List(0));
     try {
-      if(url != null) {
+      if (url != null) {
         bytes = await readBytes(url);
       }
-    } on Exception {
-      rethrow;
+    } catch(e) {
+      onError(e);
     }
     return bytes;
   }
 
-  // Check connection to internet, 
-  // Note that on Android, connection does not guarantee connection to Internet. 
+  // Check internet connection,
+  // Note that on Android, connection does not guarantee connection to Internet.
   // For instance, the phone may have wifi access but it might be a VPN or a hotel WiFi with no internet access.
-  // and didn't find a way to check it past checking if data/wifi is connected
+  // and I didn't find a way to check it past checking if data/wifi is connected
   isConnectedToInternet() async {
     try {
       final result = await InternetAddress.lookup("www.google.com");
-      if(result != null || result.isNotEmpty)
-        return true;
-    } catch(e) {
+      if (result != null || result.isNotEmpty) return true;
+    } catch (e) {
       print(e);
     }
     return false;
   }
 
-   /// NetworkOperations instantiation
+  /// NetworkOperations instantiation
   static NetworkOperations _instance = NetworkOperations._internal();
   factory NetworkOperations() => _instance;
   NetworkOperations._internal();
