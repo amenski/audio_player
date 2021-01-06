@@ -62,6 +62,7 @@ class MediaPlayerRepository {
 
   Future<int> saveNewPost(Map<String, dynamic> post) async {
     var db = await dbHandler.getDatabase;
+    // in Post counting rows starts from 1 for each category,
     // no autoincrement for non-primary keys, so use MAX,
     // select MAX(id) from post where category_id = "category_id";
     String insertString ="insert into post (id, category_id, title, url, thumb_url, description) "

@@ -213,7 +213,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(this._post.title),
-                  Text(this._post.description),
+                  Text(this._post.description ?? ""),
                   new Material(child: _buildPlayer(this._post.thumbUrl, _scaffoldKey)),
                 ]),
           ),

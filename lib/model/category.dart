@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:audiobook/util/constants.dart';
 
 class Category {
@@ -12,8 +10,15 @@ class Category {
   // BE - holds onetime value which will not be used after fetching the parent.
   String parentCategoryIdBE;
 
-  Category(this.id, this.title, this.description, this.parentCategoryId,
-      this.thumbUrl);
+  Category({
+      this.id,
+      this.title,
+      this.description,
+      this.parentCategoryId,
+      this.thumbUrl,
+      this.externalId,
+      this.parentCategoryIdBE
+  });
 
   Category.fromMap(Map<String, dynamic> map) {
     this.id = map['id'];
@@ -27,15 +32,19 @@ class Category {
     this.externalId = map['_id'];
   }
 
-  Category.fromJson(String json) {
-    Map<String, dynamic> map = jsonDecode(json);
-    this.title = map['title'];
-    this.description = map['description'];
-    this.parentCategoryIdBE = map['parentCategoryId'];
-    if (map['thumbUrl'] != null && map['thumbUrl'] != "") {
-      this.thumbUrl = map['thumbUrl'];
+  factory Category.fromJson(Map<String, dynamic> parsedCategory) {
+    String thumbUrl = Constants.DEFAULT_LEADING_IMAGE;
+    if (parsedCategory['thumbUrl'] != null &&
+        parsedCategory['thumbUrl'] != "") {
+      thumbUrl = parsedCategory['thumbUrl'];
     }
-    this.externalId = map['_id'];
+    return Category(
+        title: parsedCategory['title'],
+        description: parsedCategory['description'],
+        parentCategoryIdBE: parsedCategory['parentId'],
+        thumbUrl: thumbUrl,
+        externalId: parsedCategory['id']
+    );
   }
 
   Map<String, dynamic> toMap() {

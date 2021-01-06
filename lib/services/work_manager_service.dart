@@ -14,52 +14,56 @@ void callbackBackgroundWorkDispatcher() {
   Workmanager.executeTask((taskName, inputData) async {
     switch (taskName) {
       case Constants.SyncEveryDay:
-        BackendSyncService beService = BackendSyncService();
-        MediaPlayerRepository mediaPlayerRepository = new MediaPlayerRepository();
-        int nextVersion = await beService.isUpdateRequired();
-        // nextVersion will be 0 whenever there is a problem
-        if (nextVersion != 0) {
-          Response response = await beService.getNextLatestVersionData(nextVersion, onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
-          Version next = Version.fromJson(response.body);
-          if (next != null && next.type != null) {
-            switch (next.type) {
-              case "P":
-                Response postResponse = await beService.getPostById(
-                    next.objectId,
-                    onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
-                Map<String, dynamic> map = jsonDecode(postResponse.body);
-                // get id of category
-                Category category = await mediaPlayerRepository.findCategoryByExternalId(map["categoryId"]);
+        try {
+          BackendSyncService beService = BackendSyncService();
+          MediaPlayerRepository mediaPlayerRepository = new MediaPlayerRepository();
+          Response response = await beService.getNextVersionData(onError: (e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+          if (response != null) {
+            Map<String, dynamic> responseData = json.decode(response.body);
+            if (responseData["resultCode"] == 200) {
+              Version next = Version.fromJson(responseData["returnValue"]);
+              switch (next.type) {
+                case "P":
+                  Response postResponse = await beService.getPostById(
+                      next.objectId,
+                      onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
 
-                // remove unnecessary fields(before sending the map) and the data-type of categoryId on BE and client are different
-                map.removeWhere((key, value) => key == "_id" || key == "categoryId" || key == "modifiedAt");
-                Post post = Post.fromMap(map);
-                post.categoryId = category.id;
-                int newId = await mediaPlayerRepository.saveNewPost(post.toMap());
-                if (newId != null) {
-                  await mediaPlayerRepository.saveLastVersionData(next.version);
-                }
-                break;
-              case "C":
-                Response catResponse = await beService.getCategoryById(
-                    next.objectId,
-                    onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
-                //removes unnecessary fields like createdAt
-                Category cat = Category.fromJson(catResponse.body);
-                int newId = await mediaPlayerRepository.saveNewCategory(cat.toMap());
-                if (newId != null) {
-                  await mediaPlayerRepository.saveLastVersionData(next.version);
-                }
-                break;
-              default:
-                print("No case for : " + next.type);
-                break;
+                  final parsedPost = json.decode(postResponse.body);
+                  // get id of category
+                  Category category = await mediaPlayerRepository.findCategoryByExternalId(parsedPost["returnValue"]["categoryId"]);
+                  Post post = Post.fromJson(parsedPost["returnValue"]);
+                  post.categoryId = category.id; // set parent id
+                  int newId =
+                      await mediaPlayerRepository.saveNewPost(post.toMap());
+                  if (newId != null) {
+                    await mediaPlayerRepository.saveLastVersionData(next.version);
+                  }
+                  break;
+                case "C":
+                  Response catResponse = await beService.getCategoryById(
+                      next.objectId,
+                      onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+                  //removes unnecessary fields like createdAt
+                  final parsedResponse = json.decode(catResponse.body);
+                  Category cat =
+                      Category.fromJson(parsedResponse["returnValue"]);
+                  int newId = await mediaPlayerRepository.saveNewCategory(cat.toMap());
+                  if (newId != null) {
+                    await mediaPlayerRepository.saveLastVersionData(next.version);
+                  }
+                  break;
+                default:
+                  print("No case for : ${next.type}");
+                  break;
+              }
             }
           }
+        } catch (e) {
+          print(e);
         }
         break;
       case Workmanager.iOSBackgroundTask:
-        print("The iOS background fetch was triggered");
+        print("Not yet implemented.");
         break;
       default:
         return false;
@@ -72,25 +76,25 @@ void callbackBackgroundWorkDispatcher() {
 /// Because of some limitations
 ///   - No real push notification(we have to call BE manual way),
 ///   - Any particular call will only download 1 item(post/category)...
-/// the job should run once a day atleast to overcome the second case.
+/// the job should run at least once a day to overcome the second case.
 class WorkManagerService {
   void initializeWorker() {
-    Workmanager.initialize(callbackBackgroundWorkDispatcher, isInDebugMode: true);
+    Workmanager.initialize(callbackBackgroundWorkDispatcher, isInDebugMode: false);
   }
 
   void registerWeeklyTask() {
     Workmanager.registerPeriodicTask(
-        Constants.SyncEveryWeek, Constants.SyncEveryWeek,
-        constraints: Constraints(
-            networkType: NetworkType.connected, requiresBatteryNotLow: true),
+        Constants.SyncEveryWeek,
+        Constants.SyncEveryWeek,
+        constraints: Constraints(networkType: NetworkType.connected, requiresBatteryNotLow: true),
         initialDelay: Duration(seconds: 10),
         frequency: Duration(minutes: 15));
   }
 
   void registerOneTimeTask() {
     Workmanager.registerOneOffTask(
-        Constants.SyncEveryDay, Constants.SyncEveryDay,
-        constraints: Constraints(
-            networkType: NetworkType.connected, requiresBatteryNotLow: true));
+        Constants.SyncEveryDay,
+        Constants.SyncEveryDay,
+        constraints: Constraints(networkType: NetworkType.connected, requiresBatteryNotLow: true));
   }
 }

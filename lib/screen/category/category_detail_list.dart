@@ -28,7 +28,7 @@ class CategoryDetailList extends StatelessWidget {
         child: ListTile(
           title: Text(postList[index].title),
           subtitle: Text(
-            postList[index].description,
+            postList[index].description ?? "",
             overflow: TextOverflow.ellipsis,
             ),
             trailing: postList[index].isOpened ? Icon(Icons.check_circle, color: Colors.green,) : null, //Check mark if it was opened

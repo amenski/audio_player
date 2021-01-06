@@ -24,8 +24,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     service.initializeWorker();
-//    service.registerWeeklyTask();
-    service.registerOneTimeTask(); //better than weekly since the download is sequential(one at a time => a day)
+    service.registerWeeklyTask();
+//     service.registerOneTimeTask();
   }
 
   @override
@@ -67,6 +67,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onCardTap(BuildContext context, int id) async {
+    service.registerOneTimeTask();
     Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'parent': itemsList[id]});
   }
 

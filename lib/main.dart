@@ -11,6 +11,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
+      debugShowCheckedModeBanner: false,
       onGenerateRoute: _routes(),
       home: new Scaffold(
         appBar: new AppBar(
