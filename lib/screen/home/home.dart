@@ -24,7 +24,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     service.initializeWorker();
-    service.registerWeeklyTask();
+    service.registerPeriodicTask();
 //     service.registerOneTimeTask();
   }
 
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage> {
 
   _buildGrid(BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
     if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
-
+    // should I add 50 versions as initial download?
     itemsList = snapshot.data;
     return Container(
       child: GridView.builder(

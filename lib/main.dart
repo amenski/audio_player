@@ -1,3 +1,4 @@
+import 'package:audiobook/screen/home/home_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/screen/home/home.dart';
@@ -18,6 +19,7 @@ class MyApp extends StatelessWidget {
           title: new Text(Constants.APP_TITLE),
         ),
         body: new HomePage(),
+        drawer: HomeDrawer(),
       ),
     );
   }

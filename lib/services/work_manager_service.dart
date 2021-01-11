@@ -82,7 +82,7 @@ class WorkManagerService {
     Workmanager.initialize(callbackBackgroundWorkDispatcher, isInDebugMode: false);
   }
 
-  void registerWeeklyTask() {
+  void registerPeriodicTask() {
     Workmanager.registerPeriodicTask(
         Constants.SyncEveryWeek,
         Constants.SyncEveryWeek,
