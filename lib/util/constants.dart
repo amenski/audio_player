@@ -24,6 +24,7 @@ class Constants {
   static const SyncEveryDay = "syncEveryDay";
   static const String BE_IP ="http://192.168.1.7:8080/v1";
   static const String VERSION_EP = BE_IP + '/version';
+  static const String INITIAL_DATA_EP = VERSION_EP + '/initial';
 
   static const String CATEGORY_EP = BE_IP + '/category';
 

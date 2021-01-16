@@ -32,6 +32,11 @@ class BackendSyncService {
     return await _callApi(Constants.CATEGORY_EP + "/" + id, headers: headers, onError: onError);
   }
 
+  // Get initial data that a user needs to download after installing the app
+  Future<Response> getInitialData({Map<String, dynamic> headers,  OnError onError}) async {
+    return await _callApi(Constants.INITIAL_DATA_EP, headers: headers, onError: onError);
+  }
+
   //call api
   Future<Response> _callApi(String url, {Map<String, dynamic> headers, OnError onError}) async {
     print("calling api on: " + url);

@@ -1,3 +1,4 @@
+import 'package:audiobook/services/backend_sync_service.dart';
 import 'package:flutter/material.dart';
 import 'package:audiobook/model/category.dart';
 import 'package:audiobook/util/constants.dart';
@@ -40,7 +41,7 @@ class _HomePageState extends State<HomePage> {
       _cardsInRow = 3;
     }
     return FutureBuilder(
-      future: MediaPlayerRepository().findAllParentCategory(), // get all parent categories
+      future: _getParentCategoriesFromDbOrRemote(),
       builder: (context, AsyncSnapshot<List<Category>> snapshot) {
        return _buildGrid(context, snapshot);
       },
@@ -72,7 +73,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   _buildGrid(BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
-    if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+    if (!snapshot.hasData || snapshot.data.isEmpty) return Center(child: CircularProgressIndicator());
     // should I add 50 versions as initial download?
     itemsList = snapshot.data;
     return Container(
@@ -82,5 +83,15 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) => _buildCardStack(context, index),
       ),
     );
+  }
+
+  _getParentCategoriesFromDbOrRemote() async {
+    BackendSyncService beService = new BackendSyncService();
+    // should I add 50 versions as initial download?
+    List<Category> list = await  MediaPlayerRepository().findAllParentCategory();
+    if(list != null && list.isNotEmpty) return list;
+    //call external api
+    beService.getInitialData();
+    return list;
   }
 }

@@ -42,9 +42,6 @@ class HomeDrawer extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
                 overflow: TextOverflow.ellipsis),
             onTap: () {
-              // Update the state of the app
-              // ...
-              // Then close the drawer
               Navigator.pop(context);
             },
           ),ListTile(
@@ -54,9 +51,6 @@ class HomeDrawer extends StatelessWidget {
                 style: TextStyle(color: Colors.black),
                 overflow: TextOverflow.ellipsis),
             onTap: () {
-              // Update the state of the app
-              // ...
-              // Then close the drawer
               Navigator.pop(context);
             },
           ),
