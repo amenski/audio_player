@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:audiobook/model/category.dart';
+import 'package:audiobook/model/post.dart';
 import 'package:http/http.dart';
 import 'package:audiobook/util/util.dart';
 import 'package:audiobook/model/version.dart';
@@ -9,7 +13,7 @@ import 'package:uuid/uuid.dart';
 /// So, I created a way to check the version on the BE and update this client based on that number. It is not the best way,
 /// but it is a good way to dodge through configuring notifications systems like RabbitMQ.
 class BackendSyncService {
-  MediaPlayerRepository repo = new MediaPlayerRepository();
+  MediaPlayerRepository mediaPlayerRepository = new MediaPlayerRepository();
 
   // === Utility methods for External operations ===
 
@@ -17,7 +21,7 @@ class BackendSyncService {
   /// Note: the BE might be very ahead of the client. e.g. client having v=1 and BE having v=100,
   /// this will be synced one at a time for each version, i.e. no bulk updates
   Future<Response> getNextVersionData({Map<String, dynamic> headers, OnError onError}) async {
-    Version version = await repo.getLastVersionData();
+    Version version = await mediaPlayerRepository.getLastVersionData();
     String getNextVersionurl = Constants.VERSION_EP + "?currentVersion=" + version.version.toString();
     return await _callApi(getNextVersionurl, headers: headers, onError: onError);
   }
@@ -33,8 +37,18 @@ class BackendSyncService {
   }
 
   // Get initial data that a user needs to download after installing the app
-  Future<Response> getInitialData({Map<String, dynamic> headers,  OnError onError}) async {
-    return await _callApi(Constants.INITIAL_DATA_EP, headers: headers, onError: onError);
+  void getInitialKit() async {
+    Response response = await _callApi(Constants.INITIAL_DATA_EP, onError: (Exception e) => {print("getInitialKit(): error calling external api: $e")});
+    if(response != null) {
+      Map<String, dynamic> responseData = json.decode(response.body);
+      if (responseData["resultCode"] == 200) {
+        dynamic kit = responseData["returnValue"]["list"];
+        for (int i = 0; i < kit.length; i++) {
+          Version next = Version.fromJson(kit[i]);
+          await syncData(next);
+        }
+      }
+    }
   }
 
   //call api
@@ -58,6 +72,45 @@ class BackendSyncService {
 
   String generateRequestUUID() {
     return new Uuid().v1();
+  }
+
+  /// Saves data coming from server
+  /// used in workManagerService for periodic tasks and here(BackendSyncService) for initial data
+  void syncData(Version next) async {
+    try {
+      switch (next.type) {
+        case "P":
+          Response postResponse = await getPostById(
+              next.objectId,
+              onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+
+          final parsedPost = json.decode(postResponse.body);
+          // get id of category
+          Category category = await mediaPlayerRepository.findCategoryByExternalId(parsedPost["returnValue"]["categoryId"]);
+          Post post = Post.fromJson(parsedPost["returnValue"]);
+          post.categoryId = category.id; // set parent id
+          int newId = await mediaPlayerRepository.saveNewPost(post.toMap());
+          if (newId != null) {
+            await mediaPlayerRepository.saveLastVersionData(next.version);
+          }
+          break;
+        case "C":
+          Response catResponse = await getCategoryById(
+              next.objectId,
+              onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+          //removes unnecessary fields like createdAt
+          final parsedResponse = json.decode(catResponse.body);
+          Category cat = Category.fromJson(parsedResponse["returnValue"]);
+          int newId = await mediaPlayerRepository.saveNewCategory(cat.toMap());
+          if (newId != null) {
+            await mediaPlayerRepository.saveLastVersionData(next.version);
+          }
+          break;
+        default:
+          print("No case for : ${next.type}");
+          break;
+      }
+    } catch(e) {print(e);}
   }
 
   /// BackendSyncService instantiation

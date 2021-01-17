@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:audiobook/services/backend_sync_service.dart';
+import 'package:audiobook/util/network_operations.dart';
 import 'package:flutter/material.dart';
 import 'package:audiobook/model/category.dart';
 import 'package:audiobook/util/constants.dart';
@@ -25,8 +28,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     service.initializeWorker();
-    service.registerPeriodicTask();
-//     service.registerOneTimeTask();
+    // service.registerPeriodicTask();
+    //service.registerOneTimeTask();
   }
 
   @override
@@ -41,7 +44,7 @@ class _HomePageState extends State<HomePage> {
       _cardsInRow = 3;
     }
     return FutureBuilder(
-      future: _getParentCategoriesFromDbOrRemote(),
+      future: _getParentCategoriesFromDbOrRemote(context),
       builder: (context, AsyncSnapshot<List<Category>> snapshot) {
        return _buildGrid(context, snapshot);
       },
@@ -68,30 +71,47 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onCardTap(BuildContext context, int id) async {
-    service.registerOneTimeTask();
+    //service.registerOneTimeTask(); //TODO remove
     Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'parent': itemsList[id]});
   }
 
   _buildGrid(BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
-    if (!snapshot.hasData || snapshot.data.isEmpty) return Center(child: CircularProgressIndicator());
-    // should I add 50 versions as initial download?
-    itemsList = snapshot.data;
-    return Container(
-      child: GridView.builder(
-        itemCount: itemsList.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
-        itemBuilder: (context, index) => _buildCardStack(context, index),
-      ),
-    );
+      switch(snapshot.connectionState) {
+        case ConnectionState.active:
+          return Center(child: CircularProgressIndicator());
+        case ConnectionState.waiting:
+          return Center(child: CircularProgressIndicator());
+        case ConnectionState.done:
+          itemsList = snapshot.data;
+          return Container(
+            child: GridView.builder(
+              itemCount: itemsList.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
+              itemBuilder: (context, index) => _buildCardStack(context, index),
+            ),
+          );
+      }
   }
 
-  _getParentCategoriesFromDbOrRemote() async {
+  Future<List<Category>> _getParentCategoriesFromDbOrRemote(BuildContext context) async {
     BackendSyncService beService = new BackendSyncService();
-    // should I add 50 versions as initial download?
+    NetworkOperations networkOperations = NetworkOperations();
+
     List<Category> list = await  MediaPlayerRepository().findAllParentCategory();
     if(list != null && list.isNotEmpty) return list;
     //call external api
-    beService.getInitialData();
-    return list;
+    final connected = await networkOperations.isConnectedToInternet();
+    if(!connected) {
+      showSnackBar(context, Constants.NO_INTERNET_CONNECTION_ERROR);
+      return Future.value([]);
+    }
+    await beService.getInitialKit();
+    service.registerPeriodicTask(); // must be after fetching initial-kit
+    return await  MediaPlayerRepository().findAllParentCategory();
+  }
+
+  showSnackBar(BuildContext context, final message) {
+    final snackBar = SnackBar(content: Text(message));
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 }
