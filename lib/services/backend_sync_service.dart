@@ -43,9 +43,11 @@ class BackendSyncService {
       Map<String, dynamic> responseData = json.decode(response.body);
       if (responseData["resultCode"] == 200) {
         dynamic kit = responseData["returnValue"]["list"];
-        for (int i = 0; i < kit.length; i++) {
-          Version next = Version.fromJson(kit[i]);
-          await syncData(next);
+        if(kit != null) {
+          for (int i = 0; i < kit.length; i++) {
+            Version next = Version.fromJson(kit[i]);
+            await syncData(next);
+          }
         }
       }
     }

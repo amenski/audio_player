@@ -34,6 +34,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   String localFilePath;
   MediaPlayerRepository repository = new MediaPlayerRepository();
 
+  // initial player state
   AudioPlayerState playerState = AudioPlayerState.STOPPED;
 
   get isPlaying => playerState == AudioPlayerState.PLAYING;
@@ -78,79 +79,93 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   }
 
   /// Play from local_file if already downloaded or else from url provided
-  Future play(GlobalKey<ScaffoldState> state) async {
-    final connected = await networkOperations.isConnectedToInternet();
-    if(!connected) {
-      showSnakBar(state, Constants.NO_INTERNET_CONNECTION_ERROR);
-      return;
-    }
+  Future play(BuildContext context) async {
+    try {
+      final connected = await networkOperations.isConnectedToInternet();
+      if (!connected) {
+        showSnakBar(context, Constants.NO_INTERNET_CONNECTION_ERROR);
+        return;
+      }
 
-    //seek back to start
-    if (position == duration) {
-      position = new Duration(seconds: 0);
-    }
-    await audioPlayer.play(_post.url, isLocal: _post.isDownloaded);
-    // state.currentState.showSnackBar(
-    //     new SnackBar(duration: new Duration(seconds: 100), content:
-    //     new Row(
-    //       children: <Widget>[
-    //         new CircularProgressIndicator(),
-    //         new Text("    Loading ...")
-    //       ],
-    //     ),
-    //     ),
-    //   );
-    setState(() {
-      playerState = AudioPlayerState.PLAYING;
-    });
+      //seek back to start
+      if (position == duration) {
+        position = new Duration(seconds: 0);
+      }
+      await audioPlayer.play(_post.url, isLocal: _post.isDownloaded,
+          respectSilence: true,
+          stayAwake: true);
+      // state.currentState.showSnackBar(
+      //     new SnackBar(duration: new Duration(seconds: 100), content:
+      //     new Row(
+      //       children: <Widget>[
+      //         new CircularProgressIndicator(),
+      //         new Text("    Loading ...")
+      //       ],
+      //     ),
+      //     ),
+      //   );
+      setState(() {
+        playerState = AudioPlayerState.PLAYING;
+      });
+    } catch(e) {print("Error play(): $e");}
   }
 
   Future pause() async {
-    await audioPlayer.pause();
-    setState(() => playerState = AudioPlayerState.PAUSED);
+    try {
+      await audioPlayer.pause();
+      setState(() => playerState = AudioPlayerState.PAUSED);
+    } catch(e) {print("Error pause(): $e");}
   }
 
   Future stop() async {
-    await audioPlayer.stop();
-    setState(() {
-      position = new Duration();
-      playerState = AudioPlayerState.STOPPED;
-    });
+    try {
+      await audioPlayer.stop();
+      setState(() {
+        position = new Duration();
+        playerState = AudioPlayerState.STOPPED;
+      });
+    } catch(e) {print("Error stop(): $e");}
   }
 
   void onComplete() {
-    // mark as opened
-    repository.updatePostOpened(_post.id, _post.categoryId);
+    try {
+      // mark as opened
+      repository.updatePostOpened(_post.id, _post.categoryId);
 
-    setState(() {
-      position = new Duration();
-      playerState = AudioPlayerState.STOPPED;
-    });
+      setState(() {
+        position = new Duration();
+        playerState = AudioPlayerState.STOPPED;
+      });
+    } catch(e) {print("Error onComplete(): $e");}
   }
 
   void fastForward() {
-    Duration forward = position + new Duration(seconds: 15);
-    
-    if(forward < duration) {
-      audioPlayer.seek(forward);
-    } else {
-      audioPlayer.stop();
-      playerState = AudioPlayerState.STOPPED;
-    }
+    try {
+      Duration forward = position + new Duration(seconds: 15);
+
+      if (forward < duration) {
+        audioPlayer.seek(forward);
+      } else {
+        audioPlayer.stop();
+        playerState = AudioPlayerState.STOPPED;
+      }
+    } catch(e) {print("Error fastForward(): $e");}
   }
 
   void fastRewind() {
-    Duration rewind = position - new Duration(seconds: 15);
-    Duration t0 = new Duration();
+    try {
+      Duration rewind = position - new Duration(seconds: 15);
+      Duration t0 = new Duration();
 
-    if(rewind > t0) {
-      audioPlayer.seek(rewind);
-    } else {
-      audioPlayer.seek(t0);
-    }
+      if (rewind > t0) {
+        audioPlayer.seek(rewind);
+      } else {
+        audioPlayer.seek(t0);
+      }
+    } catch(e) {print("Error fastRewind(): $e");}
   }
   // TODO next release
-  Future _downloadMediaFile(GlobalKey<ScaffoldState> state) async {
+  Future _downloadMediaFile(BuildContext context) async {
     try {
       //bool permissionGranted = await PermissionService().getPermissionWriteExternal;
       bool permissionGranted = true;
@@ -171,7 +186,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
           message = Text(Constants.MEDIA_ALREADY_DOWNLOADED);
           localFilePath = this._post.url;
         }
-        showSnakBar(state, message);
+        showSnakBar(context, message);
       }
     } catch(e) {
       log(e, level: 0);
@@ -192,7 +207,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
             builder: (BuildContext context) {
               return IconButton(
                   icon: Icon(Icons.file_download),
-                  onPressed: () => _downloadMediaFile(_scaffoldKey),
+                  onPressed: () => _downloadMediaFile(context),
                 );
               },
             ),
@@ -203,18 +218,17 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
           // ),
         ],
       ),
-      body: Center(
+      body: new SingleChildScrollView(
         child: new Material(
           elevation: 2.0,
           color: Colors.grey[200],
           child: new Center(
             child: new Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(this._post.title),
                   Text(this._post.description ?? ""),
-                  new Material(child: _buildPlayer(this._post.thumbUrl, _scaffoldKey)),
+                  new Material(child: _buildPlayer(this._post.thumbUrl, context)),
                 ]),
           ),
         ),
@@ -222,76 +236,80 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
     );
   }
 
-  Widget _buildPlayer(String url, GlobalKey<ScaffoldState> scaffoldKey) => new SingleChildScrollView(
-      child: Container(
+  Widget _buildPlayer(String url, BuildContext context) => new Container(
           padding: new EdgeInsets.all(16.0),
-          child: new Column(mainAxisSize: MainAxisSize.min, children: [
-            new Container(
-              constraints: BoxConstraints.expand(height: 200),
-              child: ImageBanner(url: url,),
-            ),
-            Text(localFilePath ?? ''),
-            new Row(mainAxisSize: MainAxisSize.min, children: [
-              new IconButton(
-                  onPressed: isPlaying ? () => fastRewind() : null,
-                  iconSize: 64.0,
-                  icon: new Icon(Icons.fast_rewind, semanticLabel: "15",),
-                  color: Colors.cyan),
-              _playOrPauseSwitch(scaffoldKey), // switch play pause
-              new IconButton(
-                  onPressed: isPlaying ? () => fastForward() : null,
-                  iconSize: 64.0,
-                  icon: new Icon(Icons.fast_forward, semanticLabel: "15",),
-                  color: Colors.cyan),
-            ]),
-            duration == null
-                ? new Container() // display nothing
-                : new Column(children: <Widget>[
-                    Slider(
-                      value: position?.inMilliseconds?.toDouble() ?? 0.0,
-                      onChanged: (double value) => audioPlayer.seek(Duration(milliseconds: value.toInt())),
-                      min: 0.0,
-                      max: duration.inMilliseconds.toDouble(),
-                    ),
-                    new Text(
-                        position != null
-                            ? "${positionText ?? ''} / ${durationText ?? ''}"
-                            : duration != null ? durationText : '',
-                        style: new TextStyle(fontSize: 24.0))
-                  ])
-          ])));
+          child: new Column(
+              mainAxisSize: MainAxisSize.max,
+              children: [
+              new Container(
+                constraints: BoxConstraints.expand(height: 200),
+                child: ImageBanner(url: url,),
+              ),
+              Text(localFilePath ?? ''),
+              duration == null
+                  ? new Container() // display nothing
+                  : new Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      new Text(positionText ?? ''),
+                      Slider(
+                        value: position?.inMilliseconds?.toDouble() ?? 0.0,
+                        onChanged: (double value) => audioPlayer.seek(Duration(milliseconds: value.toInt())),
+                        min: 0.0,
+                        max: duration.inMilliseconds.toDouble(),
+                      ),
+                      new Text(durationText ?? '')
+                  ]),
+              new Row(mainAxisSize: MainAxisSize.min, children: [
+                new IconButton(
+                    onPressed: isPlaying ? () => fastRewind() : null,
+                    iconSize: 64.0,
+                    icon: new Icon(Icons.fast_rewind, semanticLabel: "15",),
+                    color: Colors.cyan),
+                _playOrPauseSwitch(context), // switch play pause
+                new IconButton(
+                    onPressed: isPlaying ? () => fastForward() : null,
+                    iconSize: 64.0,
+                    icon: new Icon(Icons.fast_forward, semanticLabel: "15",),
+                    color: Colors.cyan),
+              ]),
+          ]));
 
-  showSnakBar(GlobalKey<ScaffoldState> state, final message) {
+  showSnakBar(BuildContext context, final message) {
     final snackBar = SnackBar(content: Text(message));
-    state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
+    // state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 
   /// Subscribe to [playState and position]
   subscribeToPositionAndDurationEvent() {
-    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) { 
-      setState(() => position = p);
-    });
-    _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
-          audioPlayer.onDurationChanged.listen((Duration d) {
-            setState(() => duration = d);
+    try {
+      _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
+        setState(() => position = p);
+      });
+      _audioPlayerStateSubscription =
+          audioPlayer.onPlayerStateChanged.listen((s) {
+            audioPlayer.onDurationChanged.listen((Duration d) {
+              setState(() => duration = d);
+            });
+            audioPlayer.onPlayerCompletion.listen((event) {
+              onComplete();
+            });
+          }, onError: (msg) {
+            setState(() {
+              playerState = AudioPlayerState.STOPPED;
+              duration = new Duration(seconds: 0);
+              position = new Duration(seconds: 0);
+            });
           });
-          audioPlayer.onPlayerCompletion.listen((event) {
-            onComplete();
-          });
-        }, onError: (msg) {
-          setState(() {
-            playerState = AudioPlayerState.STOPPED;
-            duration = new Duration(seconds: 0);
-            position = new Duration(seconds: 0);
-          });
-        });
+    } catch(e) {print("Error subscribeToPositionAndDurationEvent(): $e");}
   }
 
   /// Switch between play and pause buttons
-  Widget _playOrPauseSwitch(GlobalKey<ScaffoldState> scaffoldKey) {
+  Widget _playOrPauseSwitch(BuildContext context) {
     if(playerState != AudioPlayerState.PLAYING) {
       return new IconButton(
-                  onPressed: isPlaying ? null : () => play(scaffoldKey),
+                  onPressed: isPlaying ? null : () => play(context),
                   iconSize: 64.0,
                   icon: new Icon(Icons.play_arrow),
                   color: Colors.cyan);

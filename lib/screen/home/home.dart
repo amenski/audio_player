@@ -83,6 +83,7 @@ class _HomePageState extends State<HomePage> {
           return Center(child: CircularProgressIndicator());
         case ConnectionState.done:
           itemsList = snapshot.data;
+          if(itemsList == null || itemsList.isEmpty) return Center(child: Text("Unkown error! Please try again later."));
           return Container(
             child: GridView.builder(
               itemCount: itemsList.length,
