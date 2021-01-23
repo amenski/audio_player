@@ -38,9 +38,6 @@ class MyApp extends StatelessWidget {
         case Constants.CategoryDetailListPage:
           screen = CategoryDetailList(arguments['title'], arguments['data']);
           break;
-        case Constants.MediaDetailPage:
-          screen = MediaDetailWidget(arguments['data']);
-          break;
         default:
           return null;
       }

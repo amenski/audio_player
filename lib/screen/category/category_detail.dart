@@ -7,6 +7,7 @@ import 'package:audiobook/widgets/card/card_tile.dart';
 import 'package:audiobook/widgets/image_banner/image_banner.dart';
 
 /// Displays `GridView` of available `Category`
+// ignore: must_be_immutable
 class CategoryDetail extends StatelessWidget {
   final Category _category;
   List<Category> _children;
