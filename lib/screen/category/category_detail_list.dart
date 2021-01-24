@@ -63,7 +63,12 @@ class _CategoryDetailList extends State<CategoryDetailList> {
 
    _buildBody(BuildContext context, int index) {
       return new GestureDetector (
-              onTap: () => mediaPlayerWidget.change(this.postList[index]),
+              onTap: () => {
+                setState(() { 
+                  selectedItemIndex = index;
+                }),
+                mediaPlayerWidget.change(this.postList[index])
+              },
               child: ListTile(
                 title: Text(postList[index].title),
                 subtitle: Text(
