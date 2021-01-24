@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:audiobook/services/backend_sync_service.dart';
-import 'package:audiobook/util/network_operations.dart';
 import 'package:flutter/material.dart';
 import 'package:audiobook/model/category.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/card/card_tile.dart';
+import 'package:audiobook/util/network_operations.dart';
+import 'package:audiobook/services/backend_sync_service.dart';
 import 'package:audiobook/services/work_manager_service.dart';
 import 'package:audiobook/widgets/image_banner/image_banner.dart';
 import 'package:audiobook/repository/media_player_repository.dart';
@@ -91,6 +91,8 @@ class _HomePageState extends State<HomePage> {
               itemBuilder: (context, index) => _buildCardStack(context, index),
             ),
           );
+        case ConnectionState.none:
+          break;
       }
   }
 

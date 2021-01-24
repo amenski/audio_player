@@ -1,5 +1,7 @@
-import 'package:audiobook/screen/media_player/media_detail_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:audiobook/model/post.dart';
+import 'package:audiobook/screen/media_player/media_detail_widget.dart';
+
 class CategoryDetailList extends StatefulWidget {
   final _title;
   final _postList;
@@ -11,12 +13,31 @@ class CategoryDetailList extends StatefulWidget {
 }
 
 class _CategoryDetailList extends State<CategoryDetailList> {
-  final postList;
-  final title;
-  int selected = 0;
+  final List<Post> postList;
+  final String title;
+  int selectedItemIndex = 0; //current selected item index from the list, hence current playing item
+  bool isAutoplaySelected = true;
 
-  _CategoryDetailList(this.title, this.postList);
-  final MediaDetailWidget mediaPlayerWidget = new MediaDetailWidget(null);
+  /// OnCompleteCallback(int status) on media-player widget
+  /// @return 1 (finished/clicked next) or -1 (clicke prev)
+  void manageNextAndPreviosSelection(int status) {
+    final int newIndex = selectedItemIndex + status;
+    if(newIndex < 0) return; //no prev
+    if(newIndex > this.postList.length - 1) return; //no next
+    
+    //TODO autoplay option to be added on next release
+    if(isAutoplaySelected) {
+      setState(() {
+        selectedItemIndex = newIndex;
+      });
+      mediaPlayerWidget.change(this.postList[selectedItemIndex]);
+    }
+  }
+
+  MediaDetailWidget mediaPlayerWidget;
+  _CategoryDetailList(this.title, this.postList) {
+    mediaPlayerWidget = MediaDetailWidget(post: null, onCompleteCallback: (stat) => manageNextAndPreviosSelection(stat));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,25 +56,23 @@ class _CategoryDetailList extends State<CategoryDetailList> {
           ),
           ),
         ),
-        mediaPlayerWidget
+      (this.postList != null && this.postList.isNotEmpty) ? mediaPlayerWidget : new Container() // don't show player controlls
       ]),
     );
   }
 
    _buildBody(BuildContext context, int index) {
-    return new GestureDetector (
-            onTap: () => {
-              setState((){selected = index;}),
-              mediaPlayerWidget.change(this.postList[index]),},
-            child: ListTile(
-              title: Text(postList[index].title),
-              subtitle: Text(
-                postList[index].description ?? "",
-                overflow: TextOverflow.ellipsis,
-                ),
-              leading: index == selected ? Icon(Icons.play_circle_outline, color: Colors.blue,) : null,
-              trailing: postList[index].isOpened ? Icon(Icons.check_circle, color: Colors.green,) : null, //Check mark if it was opened
-            ),
+      return new GestureDetector (
+              onTap: () => mediaPlayerWidget.change(this.postList[index]),
+              child: ListTile(
+                title: Text(postList[index].title),
+                subtitle: Text(
+                  postList[index].description ?? "",
+                  overflow: TextOverflow.ellipsis,
+                  ),
+                leading: index == selectedItemIndex ? Icon(Icons.play_arrow, color: Colors.redAccent,) : Icon(Icons.music_note, color: Colors.blue,),
+                trailing: postList[index].isOpened ? Icon(Icons.check_circle, color: Colors.green,) : null, //Check mark if it was opened
+              ),
           );
   }
 }

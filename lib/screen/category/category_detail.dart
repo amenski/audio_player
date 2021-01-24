@@ -1,10 +1,10 @@
-import 'package:audiobook/model/post.dart';
-import 'package:audiobook/repository/media_player_repository.dart';
 import 'package:flutter/material.dart';
+import 'package:audiobook/model/post.dart';
 import 'package:audiobook/model/category.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/card/card_tile.dart';
 import 'package:audiobook/widgets/image_banner/image_banner.dart';
+import 'package:audiobook/repository/media_player_repository.dart';
 
 /// Displays `GridView` of available `Category`
 // ignore: must_be_immutable

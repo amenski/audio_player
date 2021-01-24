@@ -34,7 +34,9 @@ class NetworkOperations {
     try {
       final result = await InternetAddress.lookup("www.google.com");
       if (result != null || result.isNotEmpty) return true;
-    } catch (e) {
+    } on SocketException catch(_) {
+      print("Not connected to the internet.");
+    } on Exception catch (e) {
       print(e);
     }
     return false;

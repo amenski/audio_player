@@ -1,10 +1,9 @@
-import 'package:audiobook/screen/home/home_drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/screen/home/home.dart';
+import 'package:audiobook/screen/home/home_drawer.dart';
 import 'package:audiobook/screen/category/category_detail.dart';
 import 'package:audiobook/screen/category/category_detail_list.dart';
-import 'package:audiobook/screen/media_player/media_detail_widget.dart';
 
 void main() => runApp(MyApp());
 

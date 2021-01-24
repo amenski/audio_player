@@ -11,15 +11,25 @@ import 'package:audiobook/util/file_handler.dart';
 import 'package:audiobook/util/network_operations.dart';
 import 'package:audiobook/repository/media_player_repository.dart';
 
-class MediaDetailWidget extends StatefulWidget {
-  final _post;
- 
-  MediaDetailWidget(this._post); // will mainly be instantiated from the route logic
+/// A callback function to let the parent know to continue to the next audio or play the previous one
+/// 1. Media playing is finished (return 1) == NEXT
+/// 2. User clicked on forward (return 1) == NEXT
+/// 3. User clicked on backward (return -1) == PREVIOUS
+typedef void OnCompleteCallback(int completed);
 
-  final _MediaDetailWidgetState state = new _MediaDetailWidgetState(null);
+class MediaDetailWidget extends StatefulWidget {
+  final Post post;
+  final OnCompleteCallback onCompleteCallback;
+
+ _MediaDetailWidgetState state;
+
+  MediaDetailWidget({@required this.post, @required this.onCompleteCallback}) {
+      state = new _MediaDetailWidgetState(this.post, this.onCompleteCallback);
+  }
+
  // change media when pressing on a different item
   void change(Post post) {
-    if(this._post == null || post.id != this._post.id) {
+    if(this.post == null || post.id != this.post.id) {
       state.changeMedia(post);
     }
   }
@@ -30,6 +40,7 @@ class MediaDetailWidget extends StatefulWidget {
 
 class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   Post _post;
+  final OnCompleteCallback onCompleteCallback;
 
   Duration duration;
   Duration position;
@@ -57,7 +68,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   FileHandler fileHandler = FileHandler();
   NetworkOperations networkOperations = NetworkOperations();
 
-  _MediaDetailWidgetState(this._post);
+  _MediaDetailWidgetState(this._post, this.onCompleteCallback);
 
   // change the playing media
   void changeMedia(Post post) async {
@@ -144,38 +155,9 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
         position = new Duration();
         playerState = AudioPlayerState.STOPPED;
       });
+      this.onCompleteCallback(1); // notify parent
     } catch (e) {
       print("Error onComplete(): $e");
-    }
-  }
-
-  void fastForward() {
-    try {
-      Duration forward = position + new Duration(seconds: 15);
-
-      if (forward < duration) {
-        audioPlayer.seek(forward);
-      } else {
-        audioPlayer.stop();
-        playerState = AudioPlayerState.STOPPED;
-      }
-    } catch (e) {
-      print("Error fastForward(): $e");
-    }
-  }
-
-  void fastRewind() {
-    try {
-      Duration rewind = position - new Duration(seconds: 15);
-      Duration t0 = new Duration();
-
-      if (rewind > t0) {
-        audioPlayer.seek(rewind);
-      } else {
-        audioPlayer.seek(t0);
-      }
-    } catch (e) {
-      print("Error fastRewind(): $e");
     }
   }
 
@@ -190,14 +172,15 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   Widget _buildPlayerControllsWidget(BuildContext context) {
     return new Container(
-        color: Colors.black87,
+        color: Colors.blue,
         padding: new EdgeInsets.all(16.0),
         child: new Column(mainAxisSize: MainAxisSize.max, children: [
           new Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 Slider(
-                  activeColor: Colors.red,
+                  activeColor: Colors.redAccent[400],
+                  inactiveColor: Colors.white,
                   value: position?.inMilliseconds?.toDouble() ?? 0.0,
                   onChanged: (double value) => audioPlayer.seek(Duration(milliseconds: value.toInt())),
                   min: 0.0,
@@ -208,22 +191,22 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
               ]),
           new Row(mainAxisSize: MainAxisSize.min, children: [
             new IconButton(
-                onPressed: isPlaying ? () => fastRewind() : null,
+                onPressed: isPlaying ? () => onCompleteCallback(-1) : null,
                 iconSize: 32.0,
                 icon: new Icon(
-                  Icons.fast_rewind,
+                  Icons.skip_previous,
                   semanticLabel: "15",
                 ),
-                color: Colors.cyan),
+                color: Colors.white),
             _playOrPauseSwitchWidget(context), // switch play pause
             new IconButton(
-                onPressed: isPlaying ? () => fastForward() : null,
+                onPressed: isPlaying ? () => onCompleteCallback(1) : null,
                 iconSize: 32.0,
                 icon: new Icon(
-                  Icons.fast_forward,
+                  Icons.skip_next,
                   semanticLabel: "15",
                 ),
-                color: Colors.cyan),
+                color: Colors.white),
           ]),
         ]));
   }
@@ -251,8 +234,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
         setState(() => position = p);
       });
-      _audioPlayerStateSubscription =
-          audioPlayer.onPlayerStateChanged.listen((s) {
+      _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
         audioPlayer.onDurationChanged.listen((Duration d) {
           setState(() => duration = d);
         });
@@ -272,7 +254,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   }
 
   showSnakBar(BuildContext context, final message) {
-    final snackBar = SnackBar(content: Text(message));
+    final snackBar = SnackBar(content: Text(message),backgroundColor: Colors.black26,);
     Scaffold.of(context).showSnackBar(snackBar);
   }
 }
