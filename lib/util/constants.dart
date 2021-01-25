@@ -2,6 +2,7 @@
 
 class Constants {
   static const APP_TITLE = 'Audio Book/መፅሐፍት በድምፅ';
+  static const APP_ID = 'https://play.google.com/store/apps/details?id=it.aman.audiobook';
 
   static const String DEFAULT_LEADING_IMAGE = 'assets/images/reading-book.jpg';
 
@@ -17,6 +18,7 @@ class Constants {
   static const CategoryDetailPage = '/category-detail';
   static const CategoryDetailListPage = '/category-detail-list';
   static const MediaDetailPage = '/media-detail';
+  static const AboutUsPage = '/about-us';
 
   // BE
   static const SyncEveryWeek = "syncEveryWeekPeriodicWork";

@@ -1,7 +1,8 @@
+import 'package:audiobook/screen/drawer/about_us.dart';
 import 'package:flutter/material.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/screen/home/home.dart';
-import 'package:audiobook/screen/home/home_drawer.dart';
+import 'package:audiobook/screen/drawer/home_drawer.dart';
 import 'package:audiobook/screen/category/category_detail.dart';
 import 'package:audiobook/screen/category/category_detail_list.dart';
 
@@ -36,6 +37,9 @@ class MyApp extends StatelessWidget {
           break;
         case Constants.CategoryDetailListPage:
           screen = CategoryDetailList(arguments['title'], arguments['data']);
+          break;
+        case Constants.AboutUsPage:
+          screen = AboutUs();
           break;
         default:
           return null;
