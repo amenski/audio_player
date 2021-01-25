@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -11,20 +9,38 @@ import 'package:audiobook/util/constants.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:audiobook/util/file_handler.dart';
 import 'package:audiobook/util/network_operations.dart';
-import 'package:audiobook/widgets/image_banner/image_banner.dart';
 import 'package:audiobook/repository/media_player_repository.dart';
+
+/// A callback function to let the parent know to continue to the next audio or play the previous one
+/// 1. Media playing is finished (return 1) == NEXT
+/// 2. User clicked on forward (return 1) == NEXT
+/// 3. User clicked on backward (return -1) == PREVIOUS
+typedef void OnCompleteCallback(int completed);
 
 class MediaDetailWidget extends StatefulWidget {
   final Post post;
+  final OnCompleteCallback onCompleteCallback;
 
-  MediaDetailWidget(this.post); // will mainly be instantiated from the route logic
+ _MediaDetailWidgetState state;
+
+  MediaDetailWidget({@required this.post, @required this.onCompleteCallback}) {
+      state = new _MediaDetailWidgetState(this.post, this.onCompleteCallback);
+  }
+
+ // change media when pressing on a different item
+  void change(Post post) {
+    if(this.post == null || post.id != this.post.id) {
+      state.changeMedia(post);
+    }
+  }
 
   @override
-  _MediaDetailWidgetState createState() => new _MediaDetailWidgetState(post);
+  _MediaDetailWidgetState createState() => state;
 }
 
 class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   Post _post;
+  final OnCompleteCallback onCompleteCallback;
 
   Duration duration;
   Duration position;
@@ -34,15 +50,16 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   String localFilePath;
   MediaPlayerRepository repository = new MediaPlayerRepository();
 
+  // initial player state
   AudioPlayerState playerState = AudioPlayerState.STOPPED;
 
   get isPlaying => playerState == AudioPlayerState.PLAYING;
   get isPaused => playerState == AudioPlayerState.PAUSED;
 
   get durationText =>
-      duration != null ? duration.toString().split('.').first : '';
+      duration != null ? duration.toString().split('.').first : '00:00';
   get positionText =>
-      position != null ? position.toString().split('.').first : '';
+      position != null ? position.toString().split('.').first : '00:00';
 
   StreamSubscription _positionSubscription;
   StreamSubscription _audioPlayerStateSubscription;
@@ -51,7 +68,16 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   FileHandler fileHandler = FileHandler();
   NetworkOperations networkOperations = NetworkOperations();
 
-  _MediaDetailWidgetState(this._post);
+  _MediaDetailWidgetState(this._post, this.onCompleteCallback);
+
+  // change the playing media
+  void changeMedia(Post post) async {
+   await stop();
+   setState(() {
+     this._post = post;
+   }); 
+   await play(context);
+  }
 
   @override
   void initState() {
@@ -72,235 +98,163 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       //AudioPlayer.logEnabled = true;
       audioPlayer = new AudioPlayer();
       subscribeToPositionAndDurationEvent();
-    } catch(e){
+    } catch (e) {
       log(e);
     }
   }
 
   /// Play from local_file if already downloaded or else from url provided
-  Future play(GlobalKey<ScaffoldState> state) async {
-    final connected = await networkOperations.isConnectedToInternet();
-    if(!connected) {
-      showSnakBar(state, Constants.NO_INTERNET_CONNECTION_ERROR);
-      return;
-    }
+  Future play(BuildContext context) async {
+    try {
+      final connected = await networkOperations.isConnectedToInternet();
+      if (!connected) {
+        showSnakBar(context, Constants.NO_INTERNET_CONNECTION_ERROR);
+        return;
+      }
 
-    //seek back to start
-    if (position == duration) {
-      position = new Duration(seconds: 0);
+      //seek back to start
+      if (position == duration) {
+        position = new Duration(seconds: 0);
+      }
+      await audioPlayer.play(_post.url, isLocal: _post.isDownloaded, respectSilence: true, stayAwake: true);
+      setState(() {
+        playerState = AudioPlayerState.PLAYING;
+      });
+    } catch (e) {
+      print("Error play(): $e");
     }
-    await audioPlayer.play(_post.url, isLocal: _post.isDownloaded);
-    // state.currentState.showSnackBar(
-    //     new SnackBar(duration: new Duration(seconds: 100), content:
-    //     new Row(
-    //       children: <Widget>[
-    //         new CircularProgressIndicator(),
-    //         new Text("    Loading ...")
-    //       ],
-    //     ),
-    //     ),
-    //   );
-    setState(() {
-      playerState = AudioPlayerState.PLAYING;
-    });
   }
 
   Future pause() async {
-    await audioPlayer.pause();
-    setState(() => playerState = AudioPlayerState.PAUSED);
+    try {
+      await audioPlayer.pause();
+      setState(() => playerState = AudioPlayerState.PAUSED);
+    } catch (e) {
+      print("Error pause(): $e");
+    }
   }
 
   Future stop() async {
-    await audioPlayer.stop();
-    setState(() {
-      position = new Duration();
-      playerState = AudioPlayerState.STOPPED;
-    });
+    try {
+      await audioPlayer.stop();
+      setState(() {
+        position = new Duration();
+        playerState = AudioPlayerState.STOPPED;
+      });
+    } catch (e) {
+      print("Error stop(): $e");
+    }
   }
 
   void onComplete() {
-    // mark as opened
-    repository.updatePostOpened(_post.id, _post.categoryId);
-
-    setState(() {
-      position = new Duration();
-      playerState = AudioPlayerState.STOPPED;
-    });
-  }
-
-  void fastForward() {
-    Duration forward = position + new Duration(seconds: 15);
-    
-    if(forward < duration) {
-      audioPlayer.seek(forward);
-    } else {
-      audioPlayer.stop();
-      playerState = AudioPlayerState.STOPPED;
-    }
-  }
-
-  void fastRewind() {
-    Duration rewind = position - new Duration(seconds: 15);
-    Duration t0 = new Duration();
-
-    if(rewind > t0) {
-      audioPlayer.seek(rewind);
-    } else {
-      audioPlayer.seek(t0);
-    }
-  }
-  // TODO next release
-  Future _downloadMediaFile(GlobalKey<ScaffoldState> state) async {
     try {
-      //bool permissionGranted = await PermissionService().getPermissionWriteExternal;
-      bool permissionGranted = true;
-      if (!this._post.isDownloaded && permissionGranted) {
-        Uint8List bytesList = await networkOperations.getFileFromNetwork(this._post.url);
-        File file = await fileHandler.writeFileToDisk(bytesList, name: util.generateMediaFileName([this._post.description, this._post.title]));
-        if (file != null && await file.exists()) {
-          setState(() {
-            localFilePath = file.path;
-            this._post.url = localFilePath;
-            this._post.isDownloaded = true;
-          });
-        }
-      } else {
-        // Widget message = Text(Constants.STORAGE_PERMISSION_DENIED_ERROR);
-        Widget message = Text(Constants.FEATURE_NOT_AVAILABLE);
-        if (this._post.isDownloaded) {
-          message = Text(Constants.MEDIA_ALREADY_DOWNLOADED);
-          localFilePath = this._post.url;
-        }
-        showSnakBar(state, message);
-      }
-    } catch(e) {
-      log(e, level: 0);
-    }
+      // mark as opened
+      repository.updatePostOpened(_post.id, _post.categoryId);
 
+      setState(() {
+        position = new Duration();
+        playerState = AudioPlayerState.STOPPED;
+      });
+      this.onCompleteCallback(1); // notify parent
+    } catch (e) {
+      print("Error onComplete(): $e");
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-     final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: Text(this._post.title),
-        actions: [
-          Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                  icon: Icon(Icons.file_download),
-                  onPressed: () => _downloadMediaFile(_scaffoldKey),
-                );
-              },
-            ),
-
-          // IconButton(
-          //   icon: Icon(Icons.share),
-          //   onPressed: () => print("On share."),
-          // ),
-        ],
-      ),
-      body: Center(
-        child: new Material(
-          elevation: 2.0,
-          color: Colors.grey[200],
-          child: new Center(
-            child: new Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(this._post.title),
-                  Text(this._post.description),
-                  new Material(child: _buildPlayer(this._post.thumbUrl, _scaffoldKey)),
-                ]),
-          ),
-        ),
-      ),
+    return Container(
+      child: Column(
+       children: [_buildPlayerControllsWidget(context),]
+      )
     );
   }
 
-  Widget _buildPlayer(String url, GlobalKey<ScaffoldState> scaffoldKey) => new SingleChildScrollView(
-      child: Container(
-          padding: new EdgeInsets.all(16.0),
-          child: new Column(mainAxisSize: MainAxisSize.min, children: [
-            new Container(
-              constraints: BoxConstraints.expand(height: 200),
-              child: ImageBanner(url: url,),
-            ),
-            Text(localFilePath ?? ''),
-            new Row(mainAxisSize: MainAxisSize.min, children: [
-              new IconButton(
-                  onPressed: isPlaying ? () => fastRewind() : null,
-                  iconSize: 64.0,
-                  icon: new Icon(Icons.fast_rewind, semanticLabel: "15",),
-                  color: Colors.cyan),
-              _playOrPauseSwitch(scaffoldKey), // switch play pause
-              new IconButton(
-                  onPressed: isPlaying ? () => fastForward() : null,
-                  iconSize: 64.0,
-                  icon: new Icon(Icons.fast_forward, semanticLabel: "15",),
-                  color: Colors.cyan),
-            ]),
-            duration == null
-                ? new Container() // display nothing
-                : new Column(children: <Widget>[
-                    Slider(
-                      value: position?.inMilliseconds?.toDouble() ?? 0.0,
-                      onChanged: (double value) => audioPlayer.seek(Duration(milliseconds: value.toInt())),
-                      min: 0.0,
-                      max: duration.inMilliseconds.toDouble(),
-                    ),
-                    new Text(
-                        position != null
-                            ? "${positionText ?? ''} / ${durationText ?? ''}"
-                            : duration != null ? durationText : '',
-                        style: new TextStyle(fontSize: 24.0))
-                  ])
-          ])));
+  Widget _buildPlayerControllsWidget(BuildContext context) {
+    return new Container(
+        color: Colors.blue,
+        padding: new EdgeInsets.all(16.0),
+        child: new Column(mainAxisSize: MainAxisSize.max, children: [
+          new Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Slider(
+                  activeColor: Colors.redAccent[400],
+                  inactiveColor: Colors.white,
+                  value: position?.inMilliseconds?.toDouble() ?? 0.0,
+                  onChanged: (double value) => audioPlayer.seek(Duration(milliseconds: value.toInt())),
+                  min: 0.0,
+                  max: duration?.inMilliseconds?.toDouble() ?? 0.0,
+                ),
+                new Text("$positionText / $durationText",
+                    style: new TextStyle(fontSize: 16.0, color: Colors.white))
+              ]),
+          new Row(mainAxisSize: MainAxisSize.min, children: [
+            new IconButton(
+                onPressed: isPlaying ? () => onCompleteCallback(-1) : null,
+                iconSize: 32.0,
+                icon: new Icon(
+                  Icons.skip_previous,
+                  semanticLabel: "15",
+                ),
+                color: Colors.white),
+            _playOrPauseSwitchWidget(context), // switch play pause
+            new IconButton(
+                onPressed: isPlaying ? () => onCompleteCallback(1) : null,
+                iconSize: 32.0,
+                icon: new Icon(
+                  Icons.skip_next,
+                  semanticLabel: "15",
+                ),
+                color: Colors.white),
+          ]),
+        ]));
+  }
 
-  showSnakBar(GlobalKey<ScaffoldState> state, final message) {
-    final snackBar = SnackBar(content: Text(message));
-    state.currentState.showSnackBar(snackBar); //TODO instead of globalKey, use separate_widget or builder_widget
+  /// Switch between play and pause buttons
+  Widget _playOrPauseSwitchWidget(BuildContext context) {
+    if (playerState != AudioPlayerState.PLAYING) {
+      return new IconButton(
+          onPressed: isPlaying ? null : () => play(context),
+          iconSize: 32.0,
+          icon: new Icon(Icons.play_arrow),
+          color: Colors.white);
+    }
+
+    return new IconButton(
+        onPressed: isPlaying ? () => pause() : null,
+        iconSize: 32.0,
+        icon: new Icon(Icons.pause),
+        color: Colors.white);
   }
 
   /// Subscribe to [playState and position]
   subscribeToPositionAndDurationEvent() {
-    _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) { 
-      setState(() => position = p);
-    });
-    _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
-          audioPlayer.onDurationChanged.listen((Duration d) {
-            setState(() => duration = d);
-          });
-          audioPlayer.onPlayerCompletion.listen((event) {
-            onComplete();
-          });
-        }, onError: (msg) {
-          setState(() {
-            playerState = AudioPlayerState.STOPPED;
-            duration = new Duration(seconds: 0);
-            position = new Duration(seconds: 0);
-          });
+    try {
+      _positionSubscription = audioPlayer.onAudioPositionChanged.listen((p) {
+        setState(() => position = p);
+      });
+      _audioPlayerStateSubscription = audioPlayer.onPlayerStateChanged.listen((s) {
+        audioPlayer.onDurationChanged.listen((Duration d) {
+          setState(() => duration = d);
         });
+        audioPlayer.onPlayerCompletion.listen((event) {
+          onComplete();
+        });
+      }, onError: (msg) {
+        setState(() {
+          playerState = AudioPlayerState.STOPPED;
+          duration = new Duration(seconds: 0);
+          position = new Duration(seconds: 0);
+        });
+      });
+    } catch (e) {
+      print("Error subscribeToPositionAndDurationEvent(): $e");
+    }
   }
 
-  /// Switch between play and pause buttons
-  Widget _playOrPauseSwitch(GlobalKey<ScaffoldState> scaffoldKey) {
-    if(playerState != AudioPlayerState.PLAYING) {
-      return new IconButton(
-                  onPressed: isPlaying ? null : () => play(scaffoldKey),
-                  iconSize: 64.0,
-                  icon: new Icon(Icons.play_arrow),
-                  color: Colors.cyan);
-    }
-
-    return new IconButton(
-                  onPressed: isPlaying ? () => pause() : null,
-                  iconSize: 64.0,
-                  icon: new Icon(Icons.pause),
-                  color: Colors.cyan);
+  showSnakBar(BuildContext context, final message) {
+    final snackBar = SnackBar(content: Text(message),backgroundColor: Colors.black26,);
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 }

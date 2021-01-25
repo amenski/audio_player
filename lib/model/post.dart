@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:audiobook/util/constants.dart';
 
 /// A field is equivalent to a getter/setter pair.
@@ -15,9 +13,20 @@ class Post {
   String downloadPath;
   bool isDownloaded = false;
   bool isOpened = false;
+  // BE - holds onetime value which will not be used after fetching the parent.
+  String categoryIdBE;
 
-  Post(this.id, this.categoryId, this.title, this.url, this.thumbUrl,
-      this.description, this.downloadPath, this.isDownloaded);
+  Post({
+      this.id,
+      this.categoryId,
+      this.title,
+      this.url,
+      this.thumbUrl,
+      this.description,
+      this.categoryIdBE,
+      this.downloadPath,
+      this.isDownloaded
+      });
 
   Post.fromMap(Map<String, dynamic> map) {
     this.id = map['id'];
@@ -31,6 +40,19 @@ class Post {
     this.downloadPath = map['download_path'];
     this.isDownloaded = (map['is_downloaded'] == 1) ? true : false;
     this.isOpened = (map['is_opened'] == 1) ? true : false;
+  }
+
+  factory Post.fromJson(Map<String, dynamic> parsedPost) {
+    String thumbUrl = Constants.DEFAULT_LEADING_IMAGE;
+    if (parsedPost["thumbUrl"] != null) {
+      thumbUrl = parsedPost["thumbUrl"];
+    }
+    return Post(
+        title: parsedPost["title"],
+        url: parsedPost["url"],
+        description: parsedPost["description"],
+        categoryIdBE: parsedPost["categoryId"],
+        thumbUrl: thumbUrl);
   }
 
   Map<String, dynamic> toMap() {

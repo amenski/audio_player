@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:audiobook/model/category.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/card/card_tile.dart';
+import 'package:audiobook/util/network_operations.dart';
+import 'package:audiobook/services/backend_sync_service.dart';
 import 'package:audiobook/services/work_manager_service.dart';
 import 'package:audiobook/widgets/image_banner/image_banner.dart';
 import 'package:audiobook/repository/media_player_repository.dart';
@@ -24,8 +28,8 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     service.initializeWorker();
-//    service.registerWeeklyTask();
-    service.registerOneTimeTask(); //better than weekly since the download is sequential(one at a time => a day)
+    // service.registerPeriodicTask();
+    //service.registerOneTimeTask();
   }
 
   @override
@@ -40,7 +44,7 @@ class _HomePageState extends State<HomePage> {
       _cardsInRow = 3;
     }
     return FutureBuilder(
-      future: MediaPlayerRepository().findAllParentCategory(), // get all parent categories
+      future: _getParentCategoriesFromDbOrRemote(context),
       builder: (context, AsyncSnapshot<List<Category>> snapshot) {
        return _buildGrid(context, snapshot);
       },
@@ -67,19 +71,50 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onCardTap(BuildContext context, int id) async {
+    //service.registerOneTimeTask(); //TODO remove
     Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'parent': itemsList[id]});
   }
 
   _buildGrid(BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
-    if (!snapshot.hasData) return Center(child: CircularProgressIndicator());
+      switch(snapshot.connectionState) {
+        case ConnectionState.active:
+          return Center(child: CircularProgressIndicator());
+        case ConnectionState.waiting:
+          return Center(child: CircularProgressIndicator());
+        case ConnectionState.done:
+          itemsList = snapshot.data;
+          if(itemsList == null || itemsList.isEmpty) return Center(child: Text("Unkown error! Please try again later."));
+          return Container(
+            child: GridView.builder(
+              itemCount: itemsList.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
+              itemBuilder: (context, index) => _buildCardStack(context, index),
+            ),
+          );
+        case ConnectionState.none:
+          break;
+      }
+  }
 
-    itemsList = snapshot.data;
-    return Container(
-      child: GridView.builder(
-        itemCount: itemsList.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: _cardsInRow),
-        itemBuilder: (context, index) => _buildCardStack(context, index),
-      ),
-    );
+  Future<List<Category>> _getParentCategoriesFromDbOrRemote(BuildContext context) async {
+    BackendSyncService beService = new BackendSyncService();
+    NetworkOperations networkOperations = NetworkOperations();
+
+    List<Category> list = await  MediaPlayerRepository().findAllParentCategory();
+    if(list != null && list.isNotEmpty) return list;
+    //call external api
+    final connected = await networkOperations.isConnectedToInternet();
+    if(!connected) {
+      showSnackBar(context, Constants.NO_INTERNET_CONNECTION_ERROR);
+      return Future.value([]);
+    }
+    await beService.getInitialKit();
+    service.registerPeriodicTask(); // must be after fetching initial-kit
+    return await  MediaPlayerRepository().findAllParentCategory();
+  }
+
+  showSnackBar(BuildContext context, final message) {
+    final snackBar = SnackBar(content: Text(message));
+    Scaffold.of(context).showSnackBar(snackBar);
   }
 }
