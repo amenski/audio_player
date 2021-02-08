@@ -116,7 +116,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       if (position == duration) {
         position = new Duration(seconds: 0);
       }
-      await audioPlayer.play(_post.url, isLocal: _post.isDownloaded, respectSilence: true, stayAwake: true);
+      await audioPlayer.play(_post.url, isLocal: _post.isDownloaded, stayAwake: true);
       setState(() {
         playerState = AudioPlayerState.PLAYING;
       });
