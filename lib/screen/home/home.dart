@@ -71,7 +71,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   _onCardTap(BuildContext context, int id) async {
-    //service.registerOneTimeTask(); //TODO remove
     Navigator.pushNamed(context, Constants.CategoryDetailPage, arguments: {'parent': itemsList[id]});
   }
 

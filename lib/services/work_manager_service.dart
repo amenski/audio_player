@@ -52,7 +52,7 @@ class WorkManagerService {
         Constants.SyncEveryWeek,
         constraints: Constraints(networkType: NetworkType.connected, requiresBatteryNotLow: true),
         initialDelay: Duration(seconds: 10),
-        frequency: Duration(hours: 5));
+        frequency: Duration(hours: 1));
   }
 
   void registerOneTimeTask() {

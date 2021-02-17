@@ -15,7 +15,7 @@ dependencies:
 
   path_provider: ^1.5.1
   http:
-  audioplayers:
+  audioplayers: ^0.17.0
   permission_handler:
   flutter_launcher_icons: ^0.7.3
   sqflite: ^1.2.0

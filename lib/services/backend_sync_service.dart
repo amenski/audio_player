@@ -37,7 +37,7 @@ class BackendSyncService {
   }
 
   // Get initial data that a user needs to download after installing the app
-  void getInitialKit() async {
+  Future<void> getInitialKit() async {
     Response response = await _callApi(Constants.INITIAL_DATA_EP, onError: (Exception e) => {print("getInitialKit(): error calling external api: $e")});
     if(response != null) {
       Map<String, dynamic> responseData = json.decode(response.body);
@@ -78,7 +78,7 @@ class BackendSyncService {
 
   /// Saves data coming from server
   /// used in workManagerService for periodic tasks and here(BackendSyncService) for initial data
-  void syncData(Version next) async {
+  Future<void> syncData(Version next) async {
     try {
       switch (next.type) {
         case "P":
