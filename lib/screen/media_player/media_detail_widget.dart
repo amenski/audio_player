@@ -153,7 +153,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
       setState(() {
         position = new Duration();
-        playerState = AudioPlayerState.STOPPED;
+        playerState = AudioPlayerState.COMPLETED;
       });
       this.onCompleteCallback(1); // notify parent
     } catch (e) {
@@ -239,8 +239,11 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
           setState(() => duration = d);
         });
         audioPlayer.onPlayerCompletion.listen((event) {
-          onComplete();
-        });
+          //check if completed was not already called
+          if(playerState != AudioPlayerState.COMPLETED) {
+            onComplete();
+          }
+        },);
       }, onError: (msg) {
         setState(() {
           playerState = AudioPlayerState.STOPPED;

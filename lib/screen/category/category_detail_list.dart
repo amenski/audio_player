@@ -30,7 +30,11 @@ class _CategoryDetailList extends State<CategoryDetailList> {
       setState(() {
         selectedItemIndex = newIndex;
       });
-      mediaPlayerWidget.change(this.postList[selectedItemIndex]);
+      // print("next item index is: " + selectedItemIndex.toString() + " newIndex: " +newIndex.toString());
+      // // the setState() above might not update selectedItemIndex immediately 
+      // // which creates a jump from say track 1 to track 10, so use newIndex
+      // // and the selectItemIndex will be used to update the UI in other locations
+      mediaPlayerWidget.change(this.postList[selectedItemIndex]); 
     }
   }
 
