@@ -55,7 +55,7 @@ class BackendSyncService {
 
   //call api
   Future<Response> _callApi(String url, {Map<String, dynamic> headers, OnError onError}) async {
-    print("calling api on: " + url);
+    //print("calling api on: " + url);
     // Future<Response> response = Future.value(new Response("", HttpStatus.notFound));
     try {
       // TODO should I check request and response UUID equality here?
@@ -84,7 +84,7 @@ class BackendSyncService {
         case "P":
           Response postResponse = await getPostById(
               next.objectId,
-              onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+              onError: (Exception e) => print("syncData(): Unable to fetch data: $e"));
 
           final parsedPost = json.decode(postResponse.body);
           // get id of category
@@ -99,7 +99,7 @@ class BackendSyncService {
         case "C":
           Response catResponse = await getCategoryById(
               next.objectId,
-              onError: (Exception e) => print("callbackBackgroundWorkDispatcher(): Unable to fetch data: $e"));
+              onError: (Exception e) => print("syncData(): Unable to fetch data: $e"));
           //removes unnecessary fields like createdAt
           final parsedResponse = json.decode(catResponse.body);
           Category cat = Category.fromJson(parsedResponse["returnValue"]);

@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-
-import 'constants.dart';
 
 class DatabaseHandler {
   DatabaseHandler._internal(); //private constructor, could also be DatabaseHandler._();
@@ -24,7 +21,7 @@ class DatabaseHandler {
 
   initDb() async {
     try {
-      Sqflite.devSetDebugModeOn(true);
+      //Sqflite.devSetDebugModeOn(true);
       // String path;
       //
       // Directory appDocDir = await getApplicationDocumentsDirectory();
