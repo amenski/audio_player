@@ -18,8 +18,13 @@ void callbackBackgroundWorkDispatcher() {
           if (response != null) {
             Map<String, dynamic> responseData = json.decode(response.body);
             if (responseData["resultCode"] == 200) {
-              Version next = Version.fromJson(responseData["returnValue"]);
-              await beService.syncData(next);
+              dynamic nextVersions = responseData["returnValue"]["list"];
+              if(nextVersions != null) {
+                for (int i = 0; i < nextVersions.length; i++) {
+                  Version next = Version.fromJson(nextVersions[i]);
+                  await beService.syncData(next);
+                }
+              }
             }
           }
         } catch (e) {
@@ -51,8 +56,8 @@ class WorkManagerService {
         Constants.SyncEveryWeek,
         Constants.SyncEveryWeek,
         constraints: Constraints(networkType: NetworkType.connected, requiresBatteryNotLow: true),
-        initialDelay: Duration(seconds: 10),
-        frequency: Duration(hours: 1));
+        initialDelay: Duration(seconds: 30),
+        frequency: Duration(hours: 6));
   }
 
   void registerOneTimeTask() {

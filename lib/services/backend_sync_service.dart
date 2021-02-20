@@ -19,7 +19,7 @@ class BackendSyncService {
 
   /// Get the next version from BE.
   /// Note: the BE might be very ahead of the client. e.g. client having v=1 and BE having v=100,
-  /// this will be synced one at a time for each version, i.e. no bulk updates
+  /// this will be synced in chunks at a time for chunks of version, i.e. bulk updates of 10 or more
   Future<Response> getNextVersionData({Map<String, dynamic> headers, OnError onError}) async {
     Version version = await mediaPlayerRepository.getLastVersionData();
     String getNextVersionurl = Constants.VERSION_EP + "?currentVersion=" + version.version.toString();
@@ -86,10 +86,15 @@ class BackendSyncService {
               next.objectId,
               onError: (Exception e) => print("syncData(): Unable to fetch data: $e"));
 
-          final parsedPost = json.decode(postResponse.body);
+          final responseBody = json.decode(postResponse.body);
+          // if post is not published or not found at all
+          if(!responseBody["success"]) {
+            print("syncData(): " + responseBody["message"]);
+            return;
+          }
           // get id of category
-          Category category = await mediaPlayerRepository.findCategoryByExternalId(parsedPost["returnValue"]["categoryId"]);
-          Post post = Post.fromJson(parsedPost["returnValue"]);
+          Category category = await mediaPlayerRepository.findCategoryByExternalId(responseBody["returnValue"]["categoryId"]);
+          Post post = Post.fromJson(responseBody["returnValue"]);
           post.categoryId = category.id; // set parent id
           int newId = await mediaPlayerRepository.saveNewPost(post.toMap());
           if (newId != null) {
@@ -109,10 +114,10 @@ class BackendSyncService {
           }
           break;
         default:
-          print("No case for : ${next.type}");
+          print("syncData(): No case for : ${next.type}");
           break;
       }
-    } catch(e) {print(e);}
+    } catch(e) {print("syncData(): " + e.toString()); throw e;}
   }
 
   /// BackendSyncService instantiation
