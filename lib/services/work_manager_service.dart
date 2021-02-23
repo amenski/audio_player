@@ -56,8 +56,8 @@ class WorkManagerService {
         Constants.SyncEveryWeek,
         Constants.SyncEveryWeek,
         constraints: Constraints(networkType: NetworkType.connected, requiresBatteryNotLow: true),
-        initialDelay: Duration(seconds: 30),
-        frequency: Duration(hours: 6));
+        initialDelay: Duration(seconds: 10),
+        frequency: Duration(minutes: 15));
   }
 
   void registerOneTimeTask() {
