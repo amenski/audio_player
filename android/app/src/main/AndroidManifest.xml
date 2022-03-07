@@ -11,12 +11,12 @@
         The default value for apps that target API level 27 or lower is "true". Apps that target API level 28 or higher default to "false". 
         https://developer.android.com/guide/topics/manifest/application-element#usesCleartextTraffic  -->
     <application
-        android:name="io.flutter.app.FlutterApplication"
+        android:name="${applicationName}"
         android:label="AudioBook"
         android:usesCleartextTraffic="true" 
         android:icon="@mipmap/launcher_icon">
         <activity
-            android:name=".MainActivity"
+            android:name="io.flutter.embedding.android.FlutterActivity"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"

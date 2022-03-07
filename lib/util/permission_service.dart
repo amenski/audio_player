@@ -3,26 +3,26 @@ import 'package:permission_handler/permission_handler.dart';
 class PermissionService  {
   /// Get `WriteExternalStorage` permission status, or request if not granted
  Future<bool> get getPermissionWriteExternal async {
-    bool permissionStatus = await checkPermission(PermissionGroup.storage);
+    bool permissionStatus = await checkPermission(Permission.storage);
     if(!permissionStatus){
-      permissionStatus = await requestPermission(PermissionGroup.storage);
+      permissionStatus = await requestPermission(Permission.storage);
     }
 
     return permissionStatus;
   }
 
-  Future<bool> checkPermission(PermissionGroup permission) async {
-    PermissionStatus status = await PermissionHandler().checkPermissionStatus(permission);
+  Future<bool> checkPermission(Permission permission) async {
+    PermissionStatus status = await permission.status;
 
     return status == PermissionStatus.granted;
   }
 
-  Future<bool> requestPermission(PermissionGroup permission) async {
+  Future<bool> requestPermission(Permission permission) async {
       // bool isShown = await PermissionHandler().shouldShowRequestPermissionRationale(permission);
-      Map<PermissionGroup, PermissionStatus> result = await PermissionHandler().requestPermissions([permission]);
+      // Map<Permission, PermissionStatus> result = await PermissionHandler().requestPermissions([permission]);
       
-      if (result[permission] == PermissionStatus.granted)
-        return true;
+      // if (result[permission] == PermissionStatus.granted)
+      //   return true;
 
       // TODO openAppSettings()? 
 

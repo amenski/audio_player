@@ -51,10 +51,10 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   MediaPlayerRepository repository = new MediaPlayerRepository();
 
   // initial player state
-  AudioPlayerState playerState = AudioPlayerState.STOPPED;
+  PlayerState playerState = PlayerState.STOPPED;
 
-  get isPlaying => playerState == AudioPlayerState.PLAYING;
-  get isPaused => playerState == AudioPlayerState.PAUSED;
+  get isPlaying => playerState == PlayerState.PLAYING;
+  get isPaused => playerState == PlayerState.PAUSED;
 
   get durationText =>
       duration != null ? duration.toString().split('.').first : '00:00';
@@ -118,7 +118,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       }
       await audioPlayer.play(_post.url, isLocal: _post.isDownloaded, stayAwake: true);
       setState(() {
-        playerState = AudioPlayerState.PLAYING;
+        playerState = PlayerState.PLAYING;
       });
     } catch (e) {
       print("Error play(): $e");
@@ -128,7 +128,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
   Future pause() async {
     try {
       await audioPlayer.pause();
-      setState(() => playerState = AudioPlayerState.PAUSED);
+      setState(() => playerState = PlayerState.PAUSED);
     } catch (e) {
       print("Error pause(): $e");
     }
@@ -139,7 +139,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
       await audioPlayer.stop();
       setState(() {
         position = new Duration();
-        playerState = AudioPlayerState.STOPPED;
+        playerState = PlayerState.STOPPED;
       });
     } catch (e) {
       print("Error stop(): $e");
@@ -153,7 +153,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
       setState(() {
         position = new Duration();
-        playerState = AudioPlayerState.COMPLETED;
+        playerState = PlayerState.COMPLETED;
       });
       this.onCompleteCallback(1); // notify parent
     } catch (e) {
@@ -213,7 +213,7 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
 
   /// Switch between play and pause buttons
   Widget _playOrPauseSwitchWidget(BuildContext context) {
-    if (playerState != AudioPlayerState.PLAYING) {
+    if (playerState != PlayerState.PLAYING) {
       return new IconButton(
           onPressed: isPlaying ? null : () => play(context),
           iconSize: 32.0,
@@ -240,13 +240,13 @@ class _MediaDetailWidgetState extends State<MediaDetailWidget> {
         });
         audioPlayer.onPlayerCompletion.listen((event) {
           //check if completed was not already called
-          if(playerState != AudioPlayerState.COMPLETED) {
+          if(playerState != PlayerState.COMPLETED) {
             onComplete();
           }
         },);
       }, onError: (msg) {
         setState(() {
-          playerState = AudioPlayerState.STOPPED;
+          playerState = PlayerState.STOPPED;
           duration = new Duration(seconds: 0);
           position = new Duration(seconds: 0);
         });

@@ -17,7 +17,7 @@ class NetworkOperations {
     Uint8List bytes = Uint8List.fromList(new List(0));
     try {
       if (url != null) {
-        bytes = await readBytes(url);
+        bytes = await readBytes(Uri.parse(url));
       }
     } catch(e) {
       onError(e);

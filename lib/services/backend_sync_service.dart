@@ -65,7 +65,7 @@ class BackendSyncService {
         "Content-Type": "application/json"
       });
       headersAll.addAll(headers ?? {}); //headers or {}
-      return await get(url, headers: headersAll);
+      return await get(Uri.parse(url), headers: headersAll);
     } catch (e) {
       onError(e);
       throw e;
