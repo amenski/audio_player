@@ -5,8 +5,6 @@ import 'package:audiobook/model/category.dart';
 import 'package:audiobook/util/constants.dart';
 import 'package:audiobook/widgets/card/card_tile.dart';
 import 'package:audiobook/util/network_operations.dart';
-import 'package:audiobook/services/backend_sync_service.dart';
-import 'package:audiobook/services/work_manager_service.dart';
 import 'package:audiobook/widgets/image_banner/image_banner.dart';
 import 'package:audiobook/repository/media_player_repository.dart';
 
@@ -19,17 +17,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<Category> itemsList;
   var _cardsInRow = 2;
-  //background service
-  WorkManagerService service = new WorkManagerService();
 
   _HomePageState();
 
   @override
   void initState() {
     super.initState();
-    service.initializeWorker();
-    // service.registerPeriodicTask();
-    //service.registerOneTimeTask();
   }
 
   @override
@@ -96,7 +89,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<Category>> _getParentCategoriesFromDbOrRemote(BuildContext context) async {
-    BackendSyncService beService = new BackendSyncService();
     NetworkOperations networkOperations = NetworkOperations();
 
     List<Category> list = await  MediaPlayerRepository().findAllParentCategory();
@@ -107,8 +99,7 @@ class _HomePageState extends State<HomePage> {
       showSnackBar(context, Constants.NO_INTERNET_CONNECTION_ERROR);
       return Future.value([]);
     }
-    await beService.getInitialKit();
-    service.registerPeriodicTask(); // must be after fetching initial-kit
+    
     return await  MediaPlayerRepository().findAllParentCategory();
   }
 

@@ -34,45 +34,4 @@ class MediaPlayerRepository {
     var db = await dbHandler.getDatabase;
     db.rawQuery('update post set is_opened = 1 where (id = $pId and category_id = $catId)');
   }
-
-  // === BE related ===
-  Future<Version> getLastVersionData() async {
-    var db = await dbHandler.getDatabase;
-    List<Map<String, dynamic>> val = await db.rawQuery("select * from version limit 1");
-    return Version.fromMap(val.first);
-  }
-
-  Future<int> saveLastVersionData(int version) async {
-    var db = await dbHandler.getDatabase;
-    return await db.rawUpdate("update version set version = ? where id=1", [version]);
-  }
-
-  // save nested post from BE on a separate table,
-  // the client and BE have model difference
-  Future<int> saveNewCategory(Map<String, dynamic> category) async {
-    var db = await dbHandler.getDatabase;
-    String parent = category['parent_category_id_be']; //will not be saved
-    category.remove('parent_category_id_be'); // remove or else it is an exception
-    if(parent != null) {
-      List<Map<String, dynamic>> values = await db.rawQuery("select id from category where external_id = ?", [parent]);
-      category["parent_category_id"] = values[0]["id"];
-    }
-    return await db.insert("category", category);
-  }
-
-  Future<int> saveNewPost(Map<String, dynamic> post) async {
-    var db = await dbHandler.getDatabase;
-    // in Post counting rows starts from 1 for each category,
-    // no autoincrement for non-primary keys, so use MAX,
-    // select MAX(id) from post where category_id = "category_id";
-    String insertString ="insert into post (id, category_id, title, url, thumb_url, description) "
-        + " values((select IFNULL(MAX(id), 0) + 1 from post where category_id = ${post['category_id']}), ?, ?, ?, ?, ?)";
-    return await db.rawInsert(insertString, [post['category_id'], post['title'], post['url'], post['thumb_url'], post['description']]);
-  }
-
-  Future<Category> findCategoryByExternalId(String externalId) async {
-    var db = await dbHandler.getDatabase;
-    List<Map<String, dynamic>> values = await db.rawQuery("select * from category where external_id = ? limit 1", [externalId]);
-    return Category.fromMap(values[0]);
-  }
 }
